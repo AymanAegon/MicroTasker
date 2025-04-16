@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,6 +38,7 @@ const DUMMY_TASKS: Task[] = [
 ];
 
 const TaskList = () => {
+  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [location, setLocation] = useState<Location>({ lat: 34.0522, lng: -118.2437 }); // Default to Los Angeles
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -56,7 +58,7 @@ const TaskList = () => {
   }, [location]);
 
   const filteredTasks = tasks.filter(task => {
-    if (categoryFilter && task.category !== categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all' && task.category !== categoryFilter) {
       return false;
     }
     if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase()) && !task.description.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -79,7 +81,7 @@ const TaskList = () => {
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="delivery">Delivery</SelectItem>
             <SelectItem value="cleaning">Cleaning</SelectItem>
             <SelectItem value="handyman">Handyman</SelectItem>
@@ -97,7 +99,9 @@ const TaskList = () => {
                 <span>Budget: ${task.budget}</span>
                 <span>Location: {task.location}</span>
               </div>
-              <Button className="mt-4">View Details</Button>
+              <Button className="mt-4" onClick={() => router.push(`/task/${task.id}`)}>
+                View Details
+              </Button>
             </CardContent>
           </Card>
         ))}

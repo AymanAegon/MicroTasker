@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const CreateTaskForm = () => {
+const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -46,6 +46,7 @@ const CreateTaskForm = () => {
       setLocation("");
       setBudget("");
       setCategory("");
+      closeDialog();
     } catch (err) {
       console.error(err);
     }
@@ -59,9 +60,7 @@ const CreateTaskForm = () => {
         </CardHeader>
         <CardContent className="grid gap-6">
           <form onSubmit={handleSubmit}
-           className="grid gap-4"
-           >
-            <div className="grid gap-2">
+           className="grid gap-4">             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
                 type="text"
@@ -122,6 +121,9 @@ const CreateTaskForm = () => {
               Post Task
             </Button>
           </form>
+          <Button variant={"outline"} onClick={closeDialog} className="w-full">
+           Cancel
+          </Button>
         </CardContent>
       </Card>
     </div>

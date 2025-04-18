@@ -30,7 +30,7 @@ const TaskDetailPage = () => {
       const taskDoc = doc(db, 'tasks', taskId as string);
       const taskSnap = await getDoc(taskDoc);
       if (taskSnap.exists()) {
-        setTask({ id: taskSnap.id, ...taskSnap.data() } as Task);
+        setTask({ id: taskSnap.id ?? '', ...taskSnap.data() } as Task);
       }
     };
     fetchTask();

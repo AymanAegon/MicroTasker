@@ -31,6 +31,7 @@ const TaskList = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -67,9 +68,12 @@ const TaskList = () => {
     if (searchTerm && !task.title.toLowerCase().includes(searchTerm.toLowerCase()) && !task.description.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
     }
+     if (locationFilter && !task.location.toLowerCase().includes(locationFilter.toLowerCase())) {
+      return false;
+    }
     return true;
   });
-
+  
   return (
     <div>
       <div className="mb-4 flex space-x-2">
@@ -78,6 +82,12 @@ const TaskList = () => {
           placeholder="Search tasks..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Input
+          type="text"
+          placeholder="Filter by location..."
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
         />
         <Select onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-[180px]">

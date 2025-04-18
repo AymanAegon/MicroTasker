@@ -1,42 +1,45 @@
 "use client";
 
 import TaskDetails from '@/components/TaskDetails';
-import { useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';    
+import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
+import { useEffect, useState } from 'react';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
-// Import the DUMMY_TASKS array here (or ideally, fetch from your data source)
-const DUMMY_TASKS = [
-    {
-      id: '1',
-      title: 'Grocery Shopping',
-      description: 'Pick up groceries from Whole Foods',
-      location: 'Downtown',
-      budget: 25,
-      category: 'delivery',
-    },
-    {
-      id: '2',
-      title: 'House Cleaning',
-      description: 'Clean my apartment',
-      location: 'Midtown',
-      budget: 50,
-      category: 'cleaning',
-    },
-  ];
+interface Task {
+  id?: string;
+  title: string;
+  description: string;
+  location: string;
+  budget: number;
+  category: string;
+  userId: string;
+}
 
 const TaskDetailPage = () => {
-  const { id } = useParams();
-
-  // In a real app, you'd fetch the task from your database here
-  const task = DUMMY_TASKS.find((t) => t.id === id as string);
-
-  if (!task) {
-    return <p>Task not found</p>;
-  }
+  const { id: taskId } = useParams();
+  const { firestorePromises } = useAuth();
+  const { app } = useFirebase();
+  const [task, setTask] = useState<Task | null>(null);
+  
+  useEffect(() => {
+    const fetchTask = async () => {
+      if (!taskId || !app) return;
+      const { getFirestore } = await firestorePromises;
+      const db = getFirestore(app);
+      const taskDoc = doc(db, 'tasks', taskId as string);
+      const taskSnap = await getDoc(taskDoc);
+      if (taskSnap.exists()) {
+        setTask({ id: taskSnap.id, ...taskSnap.data() } as Task);
+      }
+    };
+    fetchTask();
+  }, [taskId, app, firestorePromises]);
 
   return (
-    <div>
-      <TaskDetails task={task} />
-    </div>
+      <div>
+        {task && task.id ? <TaskDetails task={task} /> : <p>Task not found</p>}
+      </div>
   );
 };
 

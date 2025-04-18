@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -61,6 +62,9 @@ const Login = () => {
           <Button variant="outline" className="w-full" onClick={() => signInWithGoogle()}>
             Log In with Google
           </Button>
+          <div className="text-center mt-4">
+            <Link href="/signup">Don't have an account? Sign Up</Link>
+          </div>
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </CardContent>
       </Card>

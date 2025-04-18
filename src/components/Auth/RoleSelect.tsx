@@ -1,12 +1,15 @@
 
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "./AuthProvider";
+import { getAuth } from "firebase/auth";
 
 const RoleSelect = () => {
+  const { updateUser } = useAuth();
   const [role, setRole] = useState('');
   const router = useRouter();
 
@@ -17,8 +20,13 @@ const RoleSelect = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (role) {
-      router.push('/');
+      const userId = getAuth().currentUser?.uid;
+      if (userId) {
+        await updateUser(userId, { role });
+        router.push("/");
+      }
     }
+
   };
 
   return (

@@ -4,12 +4,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";;
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
+import { doc, updateDoc } from "firebase/firestore";
 
 interface Task {
   id: string;
@@ -27,9 +28,10 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
-  const { user } = useAuth();
+  const { user, firestorePromises  } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState<Task>(task);
+  const [refreshKey, setRefreshKey] = useState(0);
   currentUserId = user?.uid
   const handleAcceptTask = () => {
     alert(`Task "${task.title}" accepted!`);
@@ -42,9 +44,24 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
   const handleSaveTask = async () => {
     try {
       console.log("Saving task:", editedTask);
+      if (!editedTask.id) return;
+      const { getFirestore } = await firestorePromises;
+      const db = getFirestore();
+
+      const taskDocRef = doc(db, "tasks", editedTask.id);      
+      const { id, ...taskData } = editedTask;
+      await updateDoc(taskDocRef, {
+          title: taskData.title,
+          description: taskData.description,
+          location: taskData.location,
+          budget: taskData.budget,
+          category: taskData.category,
+          // Add other fields you want to update here
+      });
 
       toast.success("Task updated successfully!");
-      setIsEditing(false);
+      window.location.reload()
+      setRefreshKey(refreshKey + 1);
     } catch (error) {
       toast.error("Error updating task.");
     }
@@ -66,7 +83,8 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center py-10 bg-secondary gap-4">
+    <>
+    <div key={refreshKey} className="flex flex-col justify-center items-center py-10 bg-secondary gap-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">{task.title}</CardTitle>
@@ -130,6 +148,8 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
         </CardContent>
       </Card>
     </div>
+    <span style={{ display: "none" }}>{refreshKey}</span>
+    </>
   );
 };
 

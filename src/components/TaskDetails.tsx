@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
-import { doc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 interface Task {
   id: string;
@@ -28,6 +29,7 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
+  const router = useRouter();
   const { user, firestorePromises  } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState<Task>(task);
@@ -68,10 +70,21 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
   };
 
   const handleDeleteTask = async () => {
+    if (task.userId !== currentUserId && currentUserId) {
+        toast.error("You are not authorized to delete this task.");
+        return;
+      }
+    
     try {
-      console.log("Deleting task:", task.id);
+        console.log("Deleting task:", task.id);
+        const { getFirestore } = await firestorePromises;
+        const db = getFirestore();
+        
+        await deleteDoc(doc(db, "tasks", task.id));
 
-      toast.success("Task deleted successfully!");
+        toast.success("Task deleted successfully!");
+        router.push("/");
+        
     } catch (error) {
       toast.error("Error deleting task.");
     }
@@ -134,6 +147,7 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
                   <DialogHeader>
                     <DialogTitle>Are you absolutely sure?</DialogTitle>
                     <DialogDescription>This action cannot be undone. This will permanently delete your task and remove your data from our servers.</DialogDescription>
+                    <Button onClick={handleDeleteTask} variant="destructive" className="w-full">Delete</Button>
                   </DialogHeader>
                 </DialogContent>
               </Dialog>

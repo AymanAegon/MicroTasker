@@ -58,7 +58,7 @@ const TaskList = () => {
     };
 
     fetchTasks();
-  }, [app, firestorePromises]);
+  }, [app, firestorePromises,tasks]);
 
   const filteredTasks = tasks.filter(task => {
     if (categoryFilter && categoryFilter !== 'all' && task.category !== categoryFilter) {

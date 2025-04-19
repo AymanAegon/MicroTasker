@@ -82,12 +82,12 @@ const Signup = () => {
               Sign Up
             </Button>
           </form>
-          <div className="text-center text-sm">
+          {/*<div className="text-center text-sm">
             Or
           </div>
           <Button variant="outline" className="w-full" onClick={() => signInWithGoogle()}>
             Sign Up with Google
-          </Button>
+          </Button>*/}
           {error && <p className="text-red-500 mt-2">{error}</p>}
           <div className="mt-4 text-center">
             <Link href="/login" className="text-sm text-blue-500 hover:underline">

@@ -56,14 +56,16 @@ const Login = () => {
               Log In
             </Button>
           </form>
-          <div className="text-center text-sm">
+          {/*<div className="text-center text-sm">
             Or
           </div>
           <Button variant="outline" className="w-full" onClick={() => signInWithGoogle()}>
             Log In with Google
-          </Button>
+          </Button>*/}
           <div className="text-center mt-4">
-            <Link href="/signup">Don't have an account? Sign Up</Link>
+            <Link href="/signup" className="text-sm text-blue-500 hover:underline">
+              Don't have an account? Sign Up
+            </Link>
           </div>
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </CardContent>

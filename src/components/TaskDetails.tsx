@@ -3,15 +3,24 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";;
+import { useState, Fragment } from "react";
+import { useAuth } from "@/components/Auth/AuthProvider";
+import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { ArrowLeft, Trash2, Edit } from "lucide-react";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/components/Auth/AuthProvider";
-import { toast } from "sonner";
-import { deleteDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Task {
   id: string;
@@ -29,28 +38,28 @@ interface TaskDetailsProps {
 }
 
 const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
-  const router = useRouter();
-  const { user, firestorePromises  } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedTask, setEditedTask] = useState<Task>(task);
+  const { firestorePromises } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
-  currentUserId = user?.uid
+  const { user } = useAuth();
+  const router = useRouter();
+  currentUserId = user?.uid;
   const handleAcceptTask = () => {
     alert(`Task "${task.title}" accepted!`);
   };
 
-  const handleEditTask = () => {
-    setIsEditing(true);
-  };
+  const isTaskOwner = task.userId === currentUserId;
 
-  const handleSaveTask = async () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTask, setEditedTask] = useState<Task>(task);
+  
+  const handleSave = async () => {
     try {
       console.log("Saving task:", editedTask);
       if (!editedTask.id) return;
       const { getFirestore } = await firestorePromises;
       const db = getFirestore();
 
-      const taskDocRef = doc(db, "tasks", editedTask.id);      
+      const taskDocRef = doc(db, "tasks", editedTask.id);
       const { id, ...taskData } = editedTask;
       await updateDoc(taskDocRef, {
           title: taskData.title,
@@ -61,32 +70,26 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
           // Add other fields you want to update here
       });
 
-      toast.success("Task updated successfully!");
+      console.log("Task updated successfully!");
       window.location.reload()
       setRefreshKey(refreshKey + 1);
     } catch (error) {
-      toast.error("Error updating task.");
+      console.log("Error updating task.");
     }
   };
 
-  const handleDeleteTask = async () => {
+  const handleDelete = async () => {
     if (task.userId !== currentUserId && currentUserId) {
-        toast.error("You are not authorized to delete this task.");
-        return;
-      }
-    
+      alert('You are not authorized to delete this task.');
+      return;
+    }
     try {
-        console.log("Deleting task:", task.id);
-        const { getFirestore } = await firestorePromises;
-        const db = getFirestore();
-        
-        await deleteDoc(doc(db, "tasks", task.id));
-
-        toast.success("Task deleted successfully!");
-        router.push("/");
-        
+      const { getFirestore } = await firestorePromises;
+      const db = getFirestore();
+      await deleteDoc(doc(db, "tasks", task.id));
+      router.push('/');
     } catch (error) {
-      toast.error("Error deleting task.");
+        console.error('Error deleting task:', error);
     }
   };
 
@@ -97,13 +100,19 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
 
   return (
     <>
-    <div key={refreshKey} className="flex flex-col justify-center items-center py-10 bg-secondary gap-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl">{task.title}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-6">
-          <CardDescription>{task.description}</CardDescription>
+    <div key={refreshKey} className="flex flex-col justify-center items-center py-10 bg-secondary gap-4 w-full min-h-screen">
+      <div className="w-full max-w-2xl px-4">
+        <Link href="/" className="flex items-center text-blue-500 hover:underline mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Link>
+        <Card className="w-full">
+          <CardHeader className="p-6 pb-0">
+            <CardTitle className="text-3xl font-bold">
+              {task.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 pt-2 space-y-4">
           <div className="grid gap-2">
             {isEditing ? (
               <div className="grid w-full items-center gap-1.5">
@@ -116,54 +125,99 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
                 <Label htmlFor="budget">Budget</Label>
                 <Input id="budget" type="number" name="budget" value={editedTask.budget} onChange={handleInputChange} />
                 <Label htmlFor="category">Category</Label>
-                <Input id="category" name="category" value={editedTask.category} onChange={handleInputChange} />
+                <Select
+                  onValueChange={(value) =>
+                    setEditedTask({ ...editedTask, category: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="delivery">Delivery</SelectItem>
+                    <SelectItem value="cleaning">Cleaning</SelectItem>
+                    <SelectItem value="handyman">Handyman</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {/* <Label htmlFor="category">Category</Label>
+                <Input id="category" name="category" value={editedTask.category} onChange={handleInputChange} /> */}
               </div>
             ) : (
               <>
-                <p>Location: {task.location}</p>
-                <p>Budget: ${task.budget}</p>
-                <p>Category: {task.category}</p>
+              <div className="text-gray-600">{task.description}</div>
+              <div className="flex flex-col gap-y-1">
+                <span className="font-semibold">Location:</span>
+                <span className="text-gray-600">{task.location}</span>
+              </div>
+              <div className="flex flex-col gap-y-1">
+                <span className="font-semibold">Budget:</span>
+                <span className="text-gray-600">${task.budget}</span>
+              </div>
+              <div className="flex flex-col gap-y-1">
+                <span className="font-semibold">Category:</span>
+                <span className="text-gray-600">{task.category}</span>
+              </div>
               </>
             )}
-          </div>
-          {isEditing && (
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveTask}>Save</Button>
             </div>
-          )}
-          {task.userId === currentUserId && !isEditing ? (
-            <div className="flex gap-4">
-              <Button onClick={handleEditTask} variant="outline" className="w-full">
+            {isEditing && (
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSave}>Save</Button>
+              </div>
+            )}
+            {task.userId !== currentUserId && (
+              <Button
+                onClick={handleAcceptTask}
+                className={cn(
+                  "w-full",
+                )}
+              >
+                Accept Task
+              </Button>
+            )}
+          </CardContent>
+          <CardContent className="p-6 pt-2 flex justify-between gap-4">
+            {isTaskOwner && (
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="outline"
+                className="flex items-center w-full"
+              >
+                <Edit className="mr-2 h-4 w-4" />
                 Edit
               </Button>
+            )}
+            {isTaskOwner && (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="destructive" className="w-full">Delete</Button>
+                  <Button variant={"destructive"} className="w-full">Delete</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>This action cannot be undone. This will permanently delete your task and remove your data from our servers.</DialogDescription>
-                    <Button onClick={handleDeleteTask} variant="destructive" className="w-full">Delete</Button>
+                    <DialogTitle>Are you sure you want to delete this task?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently remove the task from the database.
+                    </DialogDescription>
                   </DialogHeader>
+                  <Button onClick={handleDelete}
+                    variant="destructive"
+                    className="flex items-center">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
                 </DialogContent>
               </Dialog>
-            </div>
-          ) : ( task.userId !== currentUserId && (
-            <div className="flex gap-4">
-              <Button onClick={handleAcceptTask} className="w-full">
-                Accept Task
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>        
+      </div>
     </div>
-    <span style={{ display: "none" }}>{refreshKey}</span>
     </>
+    
   );
 };
 

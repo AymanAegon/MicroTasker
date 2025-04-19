@@ -8,6 +8,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { User } from "firebase/auth";
 import { useEffect } from "react";
 import { useState } from 'react';
+import Link from 'next/link';
 
 import { Button } from "@/components/ui/button";
 import CreateTaskForm from "@/components/CreateTaskForm";
@@ -41,9 +42,11 @@ export default function Home() {
           <h1 className="text-3xl font-semibold mb-6">Nearby Tasks</h1>
           {user && (
             <span className="text-sm">
-              Hello, {(user as AppUser).fullName || user.email}
+              Hello, <Link href="/profile" className="underline text-blue-500">{(user as AppUser).fullName || user.email}
+              </Link>
             </span>
           )}
+          
         </div>
         <Button onClick={handleLogout}>Logout</Button>
       </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { getNearbyLocations, Location } from "@/services/location";
+import Link from 'next/link';
 import { getFirestore, collection, getDocs, doc, getDoc } from "firebase/firestore";
 
 interface User {
@@ -114,23 +115,34 @@ const TaskList = () => {
           </SelectContent>
         </Select>
       </div>
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredTasks.map(task => (
-          <Card key={task.id}>
-            <CardContent>
-              <CardTitle>{task.title}</CardTitle>
-              <CardDescription>{task.description}</CardDescription>
-              <div className="mt-2 flex items-center justify-between">
-                <span>Budget: ${task.budget}</span>
-                <span>Location: {task.location}</span>
-                <span>Owner: {task.owner && task.owner.fullName ? task.owner.fullName : 'Unknown Owner'}</span>
+          <Link href={`/task/${task.id}`} key={task.id} className="no-underline">
+          <Card className="relative hover:shadow-md transition-shadow">
+
+            <CardContent className="p-4">
+              <div className="absolute top-2 right-2">
+                <span className="font-semibold">Budget: ${task.budget}</span>
               </div>
-              <Button className="mt-4" onClick={() => router.push(`/task/${task.id}`)}>
-                View Details
-              </Button>
+              <div className="mb-2">
+                <CardTitle className="text-lg font-medium">{task.title}</CardTitle>
+              </div>
+              <div>
+                <CardDescription className="text-sm text-gray-600">
+                  {task.description}
+                </CardDescription>
+              </div>
+              <div className="mt-2">
+                <span className="text-sm">Location: {task.location}</span>
+              </div>
+               <div className="absolute bottom-2 right-2">
+                 <span className="text-sm">For: {task.owner && task.owner.fullName ? task.owner.fullName : 'Unknown Owner'}</span>
+               </div>
             </CardContent>
+
           </Card>
-        ))}
+          </Link>
+        ))}       
         {filteredTasks.length === 0 && <p>No tasks found.</p>}
       </div>
     </div>

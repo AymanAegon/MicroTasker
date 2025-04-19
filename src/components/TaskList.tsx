@@ -9,7 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { getNearbyLocations, Location } from "@/services/location";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, getDoc } from "firebase/firestore";
+
+interface User {
+  uid?: string;
+  fullName: string;
+  email: string;
+  role: string;
+}
 
 interface Task {
   id?: string;
@@ -19,6 +26,7 @@ interface Task {
   budget: number;
   category: string;
   userId: string;
+  owner: User;
 }
 
 const TaskList = () => {
@@ -26,9 +34,9 @@ const TaskList = () => {
   const {app} = useFirebase();
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [location, setLocation] = useState<Location>({ lat: 34.0522, lng: -118.2437 }); // Default to Los Angeles
+  // const [location, setLocation] = useState<Location>({ lat: 34.0522, lng: -118.2437 }); // Default to Los Angeles
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [priceFilter, setPriceFilter] = useState('');
+  // const [priceFilter, setPriceFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
 
@@ -44,10 +52,15 @@ const TaskList = () => {
         if(db){
           const tasksCollection = collection(db, "tasks");
           const tasksSnapshot = await getDocs(tasksCollection);
-          const tasksData = tasksSnapshot.docs.map((doc) => {
-            const data = doc.data()
-            return data ? { id: doc.id, ...data } as Task: null
-          }).filter(task => task !== null) as Task[];
+          const tasksPromises = tasksSnapshot.docs.map(async (docu) => {
+            const data = docu.data();
+            const taskOwnerDocRef = doc(db, "users", data.userId);
+            const taskOwnerSnapshot = await getDoc(taskOwnerDocRef);
+            return { id: docu.id, owner: taskOwnerSnapshot.data(), ...data } as Task;
+          });
+
+          const tasksData = await Promise.all(tasksPromises)
+
           setTasks(tasksData);
         }
 
@@ -90,7 +103,7 @@ const TaskList = () => {
         />
         <Select onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by category" />
+            <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
@@ -110,6 +123,7 @@ const TaskList = () => {
               <div className="mt-2 flex items-center justify-between">
                 <span>Budget: ${task.budget}</span>
                 <span>Location: {task.location}</span>
+                <span>Owner: {task.owner && task.owner.fullName ? task.owner.fullName : 'Unknown Owner'}</span>
               </div>
               <Button className="mt-4" onClick={() => router.push(`/task/${task.id}`)}>
                 View Details

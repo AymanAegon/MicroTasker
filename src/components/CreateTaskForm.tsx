@@ -53,7 +53,7 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
   };
 
   return (
-    <div className="flex justify-center items-center py-10 bg-secondary">
+    <div className="flex justify-center items-center py-0 bg-secondary">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">Post a Task</CardTitle>

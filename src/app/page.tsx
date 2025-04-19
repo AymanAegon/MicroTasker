@@ -53,7 +53,7 @@ export default function Home() {
             <DialogTrigger asChild>
               <Button>Post a Task</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Create a task</DialogTitle>
               </DialogHeader>

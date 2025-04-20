@@ -181,7 +181,7 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
             )}
           </CardContent>
           <CardContent className="p-6 pt-2 flex justify-between gap-4">
-            {isTaskOwner && (
+            {isTaskOwner && !isEditing && (
               <Button
                 onClick={() => setIsEditing(true)}
                 variant="outline"
@@ -191,7 +191,7 @@ const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
                 Edit
               </Button>
             )}
-            {isTaskOwner && (
+            {isTaskOwner && !isEditing && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant={"destructive"} className="w-full">Delete</Button>

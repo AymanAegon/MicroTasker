@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 interface Task {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   location: string;
@@ -42,5 +42,6 @@ const TaskDetailPage = () => {
       </div>
   );
 };
+
 
 export default TaskDetailPage;

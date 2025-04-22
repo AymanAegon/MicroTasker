@@ -34,15 +34,14 @@ interface Task {
 
 interface TaskDetailsProps {
   task: Task;
-  currentUserId: string | undefined;
 }
 
-const TaskDetails = ({ task, currentUserId }: TaskDetailsProps) => {
+const TaskDetails = ({ task }: TaskDetailsProps) => {
   const { firestorePromises } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
   const router = useRouter();
-  currentUserId = user?.uid;
+  const currentUserId = user?.uid as string;
   const handleAcceptTask = () => {
     alert(`Task "${task.title}" accepted!`);
   };

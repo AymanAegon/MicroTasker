@@ -118,29 +118,29 @@ const TaskList = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredTasks.map(task => (
           <Link href={`/task/${task.id}`} key={task.id} className="no-underline">
-          <Card className="relative hover:shadow-md transition-shadow">
+            <Card className="relative hover:shadow-md transition-shadow">
 
-            <CardContent className="p-4">
-              <div className="absolute top-2 right-2">
-                <span className="font-semibold">Budget: ${task.budget}</span>
-              </div>
-              <div className="mb-2">
-                <CardTitle className="text-lg font-medium">{task.title}</CardTitle>
-              </div>
-              <div>
-                <CardDescription className="text-sm text-gray-600">
-                  {task.description}
-                </CardDescription>
-              </div>
-              <div className="mt-2">
-                <span className="text-sm">Location: {task.location}</span>
-              </div>
-               <div className="absolute bottom-2 right-2">
-                 <span className="text-sm">For: {task.owner && task.owner.fullName ? task.owner.fullName : 'Unknown Owner'}</span>
-               </div>
-            </CardContent>
+              <CardContent className="p-4">
+                <div className="absolute top-2 right-2">
+                  <span className="font-semibold">Budget: ${task.budget}</span>
+                </div>
+                <div className="mb-2">
+                  <CardTitle className="text-lg font-medium">{task.title}</CardTitle>
+                </div>
+                <div>
+                  <CardDescription className="text-sm text-gray-600">
+                    {task.description}
+                  </CardDescription>
+                </div>
+                <div className="mt-2">
+                  <span className="text-sm">Location: {task.location}</span>
+                </div>
+                <div className="absolute bottom-2 right-2">
+                  <span className="text-sm">For: {task.owner && task.owner.fullName ? task.owner.fullName : 'Unknown Owner'}</span>
+                </div>
+              </CardContent>
 
-          </Card>
+            </Card>
           </Link>
         ))}       
         {filteredTasks.length === 0 && <p>No tasks found.</p>}

@@ -8,13 +8,14 @@ import { Separator } from "@/components/ui/separator"
 import { ArrowLeft } from "lucide-react"
 import { useEffect } from "react";
 import { User } from "firebase/auth";
-interface Role {
+interface UserAttr {
+  fullName?: string;
   role?: string;
 };
 
-type AppUser = User & { fullName?: string } & Role;
+type AppUser = User & UserAttr;
 
-export default async function ProfilePage() {
+export default function ProfilePage() {
   const { user } = useAuth();
   const currentUser = user as AppUser;
   const router = useRouter();

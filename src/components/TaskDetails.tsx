@@ -21,6 +21,13 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { User } from "firebase/auth";
+interface UserAttr {
+  fullName: string;
+  role: string;
+};
+
+type Owner = User & UserAttr;
 
 interface Task {
   id: string;
@@ -30,6 +37,7 @@ interface Task {
   userId: string;
   budget: number;
   category: string;
+  owner: Owner;
 }
 
 interface TaskDetailsProps {
@@ -45,7 +53,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
   const handleAcceptTask = () => {
     alert(`Task "${task.title}" accepted!`);
   };
-
+  
   const isTaskOwner = task.userId === currentUserId;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -108,7 +116,12 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         <Card className="w-full">
           <CardHeader className="p-6 pb-0">
             <CardTitle className="text-3xl font-bold">
-              {task.title}
+              <div className="flex items-center gap-2">
+                <span>{task.title}</span>
+                <Link href={`/profile/${task.owner.uid}`} key={task.owner.uid} className="no-underline">
+                  <span>{task.owner.fullName}</span>
+                </Link>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-2 space-y-4">

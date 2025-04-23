@@ -5,6 +5,13 @@ import { useParams } from 'next/navigation';
 import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
 import { useEffect, useState } from 'react';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { User } from "firebase/auth";
+interface UserAttr {
+  fullName: string;
+  role: string;
+};
+
+type Owner = User & UserAttr;
 
 interface Task {
   id: string;
@@ -14,6 +21,7 @@ interface Task {
   budget: number;
   category: string;
   userId: string;
+  owner: Owner;
 }
 
 const TaskDetailPage = () => {
@@ -29,8 +37,11 @@ const TaskDetailPage = () => {
       const db = getFirestore(app);
       const taskDoc = doc(db, 'tasks', taskId as string);
       const taskSnap = await getDoc(taskDoc);
+      const taskData = taskSnap.data();
+      const taskOwnerDocRef = doc(db, "users", taskData?.userId);
+      const taskOwnerSnapshot = await getDoc(taskOwnerDocRef);
       if (taskSnap.exists()) {
-        setTask({ id: taskSnap.id ?? '', ...taskSnap.data() } as Task);
+        setTask({id: taskSnap.id, ...taskData, owner: taskOwnerSnapshot.data() } as Task);
       }
     };
     fetchTask();

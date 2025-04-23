@@ -1,12 +1,13 @@
 "use client";
 
 import ProfileDetails from '@/components/ProfileDetails';
-import { useParams } from 'next/navigation';    
+import { notFound, useParams } from 'next/navigation';    
 import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
 import { useEffect, useState } from 'react';
 import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { User } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import NotFound from '@/app/not-found';
 
 type Task = {
   id: string;
@@ -62,12 +63,15 @@ const ProfileDetailPage = () => {
       if (profileSnap.exists()) {
         setProfile({ uid: profileSnap.id ?? '', ...profileSnap.data(), tasks: tasks } as Profile);
       }
+      if (!profile) {
+        notFound();
+      }
     };
     fetchTask();
   }, [profileId, app, firestorePromises]);
   return (
     <div>
-      {profile && profile.uid ? <ProfileDetails profile={profile} /> : <p>Task not found</p>}
+      {profile && profile.uid ? <ProfileDetails profile={profile} /> : <NotFound/>}
     </div>
   );
 };

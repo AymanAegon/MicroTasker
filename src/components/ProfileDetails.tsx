@@ -3,9 +3,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, Fragment } from "react";
-import { ArrowLeft, Trash2, Edit } from "lucide-react";
+import { ArrowLeft, Trash2, Edit, Delete } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User } from "firebase/auth";
 interface UserAttr {
@@ -33,6 +36,8 @@ const ProfileDetails = ({ profile }: Profile) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<ProfileType>(profile);
 
   const filteredTasks = profile.tasks.filter(task => {
     if (categoryFilter && categoryFilter !== 'all' && task.category !== categoryFilter) {
@@ -47,79 +52,114 @@ const ProfileDetails = ({ profile }: Profile) => {
     return true;
   });
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setEditedProfile((prevTask) => ({ ...prevTask, [name]: value }));
+  };
+
   return (
     <div key={refreshKey} className="flex flex-col justify-center items-center py-10 bg-secondary gap-4 w-full min-h-screen">
       <div className="w-full max-w-5xl px-4">
-        <Link href="/" className="flex items-center text-blue-500 hover:underline mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Link>
+        {!isEditing && (
+          <Link href="/" className="flex items-center text-blue-500 hover:underline mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Link>
+        )}
         <Card className="w-full">
           <CardHeader className="p-6 pb-0">
-            <CardTitle>
-              <span className="text-3xl font-bold">
-                {profile.fullName}
-              </span>
-              <span className="text-lg text-gray-600">
-                {profile.role === "taskPoster" ? "  (Task Poster)" : "  (Tasker)"}
-              </span>
+            <CardTitle className="flex items-center justify-between">
+              <div>
+                <span className="text-3xl font-bold">
+                  {profile.fullName}
+                </span>
+                <span className="text-lg text-gray-600">
+                  {profile.role === "taskPoster" ? "  (Task Poster)" : "  (Tasker)"}
+                </span>
+              </div>
+              <div>
+                {!isEditing ? (
+                <Edit
+                  onClick={() => setIsEditing(true)}
+                  className="mr-2 h-4 w-4 cursor-pointer"
+                />
+                ) : (
+                <Delete
+                  onClick={() => setIsEditing(false)}
+                  className="mr-2 h-4 w-4 cursor-pointer"
+                />
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-2 space-y-4">
-            <div className="grid gap-2">
-              Total tasks: {profile.tasks.length}
-            </div>
-            <div className="mb-4 flex space-x-2">
-              <Input
-                type="text"
-                placeholder="Search tasks..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Filter by location..."
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-              />
-              <Select onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="delivery">Delivery</SelectItem>
-                  <SelectItem value="cleaning">Cleaning</SelectItem>
-                  <SelectItem value="handyman">Handyman</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-4">
-              {filteredTasks.map(task => (
-                <Link href={`/task/${task.id}`} key={task.id} className="no-underline">
-                  <Card className="relative hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="absolute top-2 right-2">
-                        <span className="font-semibold">Budget: ${task.budget}</span>
-                      </div>
-                      <div className="mb-2">
-                        <CardTitle className="text-lg font-medium">{task.title}</CardTitle>
-                      </div>
-                      <div>
-                        <CardDescription className="text-sm text-gray-600">
-                          {task.description}
-                        </CardDescription>
-                      </div>
-                      <div className="absolute bottom-2 right-2">
-                        <span className="text-sm">Location: {task.location}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}       
-              {filteredTasks.length === 0 && <p>No tasks found.</p>}
-            </div>
+            {isEditing ? (
+              <>
+              <div className="w-full flex gap-1.5">
+                <Label htmlFor="w-1/6 fullName">Full Name</Label>
+                <Input className="w-4/6 flex-none" id="fullName" name="fullName" value={profile.fullName} onChange={handleInputChange} />
+                <Button className="w-1/6 flex-auto">Save</Button>
+              </div>
+              <Button className="">Change Password</Button>
+              </>
+            ) : (
+              <>
+              <div className="grid gap-2">
+                Total tasks: {profile.tasks.length}
+              </div>
+              <div className="mb-4 flex space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Search tasks..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Input
+                  type="text"
+                  placeholder="Filter by location..."
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                />
+                <Select onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="delivery">Delivery</SelectItem>
+                    <SelectItem value="cleaning">Cleaning</SelectItem>
+                    <SelectItem value="handyman">Handyman</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-4">
+                {filteredTasks.map(task => (
+                  <Link href={`/task/${task.id}`} key={task.id} className="no-underline">
+                    <Card className="relative hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="absolute top-2 right-2">
+                          <span className="font-semibold">Budget: ${task.budget}</span>
+                        </div>
+                        <div className="mb-2">
+                          <CardTitle className="text-lg font-medium">{task.title}</CardTitle>
+                        </div>
+                        <div>
+                          <CardDescription className="text-sm text-gray-600">
+                            {task.description}
+                          </CardDescription>
+                        </div>
+                        <div className="absolute bottom-2 right-2">
+                          <span className="text-sm">Location: {task.location}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}       
+                {/* {filteredTasks.length === 0 && <p>No tasks found.</p>} */}
+              </div>
+              </>
+            )}
           </CardContent>
         </Card>        
       </div>

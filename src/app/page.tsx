@@ -42,7 +42,7 @@ export default function Home() {
           <h1 className="text-3xl font-semibold mb-6">Nearby Tasks</h1>
           {user && (
             <span className="text-sm">
-              Hello, <Link href="/profile" className="underline text-blue-500">{(user as AppUser).fullName || user.email}
+              Hello, <Link href={`/profile/${user.uid}`} key={user.uid} className="underline text-blue-500">{(user as AppUser).fullName || user.email}
               </Link>
             </span>
           )}

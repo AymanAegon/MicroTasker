@@ -34,6 +34,7 @@ const ProfileDetailPage = () => {
   const { firestorePromises } = useAuth();
   const { app } = useFirebase();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileExist, setProfileExist] = useState<boolean>(true);
   // console.log(profileId)
   useEffect(() => {
     const fetchTask = async () => {
@@ -42,10 +43,10 @@ const ProfileDetailPage = () => {
         return;
       }
 
-      if (profileId === user?.uid) {
-        router.push("/profile");
-        return;
-      }
+      // if (profileId === user?.uid) {
+      //   router.push("/profile");
+      //   return;
+      // }
       const { getFirestore } = await firestorePromises;
       const db = getFirestore(app);
       const profileDoc = doc(db, 'users', profileId as string);
@@ -64,14 +65,14 @@ const ProfileDetailPage = () => {
         setProfile({ uid: profileSnap.id ?? '', ...profileSnap.data(), tasks: tasks } as Profile);
       }
       if (!profile) {
-        notFound();
+        setProfileExist(false);
       }
     };
     fetchTask();
   }, [profileId, app, firestorePromises]);
   return (
     <div>
-      {profile && profile.uid ? <ProfileDetails profile={profile} /> : <NotFound/>}
+      {profile && profile.uid ? <ProfileDetails profile={profile} /> : !profileExist && <NotFound/>}
     </div>
   );
 };

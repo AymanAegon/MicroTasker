@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, Fragment } from "react";
 import { useAuth } from "@/components/Auth/AuthProvider";
-import { doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { ArrowLeft, Trash2, Edit } from "lucide-react";
+import { doc, deleteDoc, updateDoc, Firestore } from "firebase/firestore";
+import { ArrowLeft } from "lucide-react"
+import { Trash2, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -18,8 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/select";import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { User } from "firebase/auth";
 interface UserAttr {
@@ -109,10 +109,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     <>
     <div key={refreshKey} className="flex flex-col justify-center items-center py-10 bg-secondary gap-4 w-full min-h-screen">
       <div className="w-full max-w-2xl px-4">
-        <Link href="/" className="flex items-center text-blue-500 hover:underline mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Link>
+        <Button variant={"link"} size={"sm"} onClick={() => router.back()} className="p-0 mb-2">
+          <ArrowLeft className="mr-0 h-4 w-4" />
+          Go Back
+        </Button>
+
         <Card className="w-full">
           <CardHeader className="p-6 pb-0">
             <CardTitle className="text-3xl font-bold">

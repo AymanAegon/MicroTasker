@@ -35,7 +35,9 @@ const ProfileDetails = ({ profile }: Profile) => {
           </CardHeader>
           <CardContent className="p-6 pt-2 space-y-4">
             <div className="grid gap-2">
-                <div className="text-gray-600">{profile.role}</div>
+                <div className="text-gray-600">
+                  {profile.role === "taskPoster" ? "Task Poster" : "Tasker"}
+                </div>
                 {/* <div className="flex flex-col gap-y-1">
                 <span className="font-semibold">Category:</span>
                 <span className="text-gray-600">{task.category}</span>

@@ -67,7 +67,7 @@ const Login = () => {
               Don't have an account? Sign Up
             </Link>
           </div>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
+          {error && <p className="text-red-500 mt-2">Credentials are incorrect</p>}
         </CardContent>
       </Card>
     </div>

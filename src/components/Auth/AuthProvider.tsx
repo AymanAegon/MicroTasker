@@ -167,30 +167,30 @@ export function AuthProvider({children}: {children: ReactNode}) {
     
   }, [auth, firebase]);
 
-    const signInWithGoogle = async () => {
-        if (auth) {
-            const provider = new GoogleAuthProvider();
-            try {
-            await signInWithPopup(auth, provider);
-            router.push('/');
-            } catch (error) {
-            console.error('Google sign-in error:', error);
-            }
+  const signInWithGoogle = async () => {
+    if (auth) {
+        const provider = new GoogleAuthProvider();
+        try {
+          await signInWithPopup(auth, provider);
+          router.push('/');
+        } catch (error) {
+          console.error('Google sign-in error:', error);
         }
-      };
+      }
+    };
 
   const createUser = async (email: string, password?: string) => {
     if(auth){
-        try {
-            if (!password) {
-            throw new Error('Password is required to create a user.');
-            }
-            await createUserWithEmailAndPassword(auth, email, password);
-            router.push('/');
-        } catch (error: any) {
-            console.error('Error creating user:', error.message);
-            throw error;
+      try {
+        if (!password) {
+          throw new Error('Password is required to create a user.');
         }
+        await createUserWithEmailAndPassword(auth, email, password);
+        router.push('/');
+      } catch (error: any) {
+        // console.error('Error creating user:', error.message);
+        throw error;
+      }
     }
   };
 
@@ -203,7 +203,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
         await signInWithEmailAndPassword(auth, email, password);
         router.push('/');
       } catch (error: any) {
-        console.error('Error signing in:', error.message);
+        // console.error('Error signing in:', error.message);
         throw error;
       }
     }

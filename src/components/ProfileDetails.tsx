@@ -3,14 +3,18 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, Fragment } from "react";
-import { ArrowLeft, Trash2, Edit, Delete } from "lucide-react";
+import { ArrowLeft, Edit, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
+import { doc, deleteDoc, updateDoc, Firestore } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User } from "firebase/auth";
+import { notFound } from "next/navigation";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import PasswordChange from "@/components/PasswordChange";
 interface UserAttr {
   fullName: string;
   role: string;
@@ -32,11 +36,13 @@ interface Profile {
 }
 
 const ProfileDetails = ({ profile }: Profile) => {
+  const { firestorePromises, user } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [editedProfile, setEditedProfile] = useState<ProfileType>(profile);
 
   const filteredTasks = profile.tasks.filter(task => {
@@ -55,6 +61,29 @@ const ProfileDetails = ({ profile }: Profile) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setEditedProfile((prevTask) => ({ ...prevTask, [name]: value }));
+  };
+  
+  const handleSave = async () => {
+    try {
+      console.log("Saving change:", editedProfile);
+      if (!editedProfile.uid || editedProfile.uid !== user?.uid) {
+        notFound();
+      }
+      const { getFirestore } = await firestorePromises;
+      const db = getFirestore();
+
+      const userDocRef = doc(db, "users", editedProfile.uid);
+      const { uid, ...userData } = editedProfile;
+      await updateDoc(userDocRef, {
+          fullName: userData.fullName,
+      });
+
+      console.log("Full Name updated successfully!");
+      window.location.reload()
+      setRefreshKey(refreshKey + 1);
+    } catch (error) {
+      console.log("Error updating Profile.", error);
+    }
   };
 
   return (
@@ -78,13 +107,13 @@ const ProfileDetails = ({ profile }: Profile) => {
                 </span>
               </div>
               <div>
-                {!isEditing ? (
+                {!isEditing && editedProfile.uid === user?.uid ? (
                 <Edit
                   onClick={() => setIsEditing(true)}
                   className="mr-2 h-4 w-4 cursor-pointer"
                 />
-                ) : (
-                <Delete
+                ) : isEditing && (
+                <X
                   onClick={() => setIsEditing(false)}
                   className="mr-2 h-4 w-4 cursor-pointer"
                 />
@@ -96,11 +125,24 @@ const ProfileDetails = ({ profile }: Profile) => {
             {isEditing ? (
               <>
               <div className="w-full flex gap-1.5">
-                <Label htmlFor="w-1/6 fullName">Full Name</Label>
-                <Input className="w-4/6 flex-none" id="fullName" name="fullName" value={profile.fullName} onChange={handleInputChange} />
-                <Button className="w-1/6 flex-auto">Save</Button>
+                <Label className="" htmlFor="fullName">Full Name</Label>
+                <Input className="w-4/6 flex-none" id="fullName" name="fullName" value={editedProfile.fullName} onChange={handleInputChange} />
+                <Button
+                  className="w-1/6 flex-auto"
+                  onClick={handleSave}
+                >Save</Button>
               </div>
-              <Button className="">Change Password</Button>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button>Change the password</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Changing the password</DialogTitle>
+                  </DialogHeader>
+                  <PasswordChange closeDialog={()=> setOpen(false)} />
+                </DialogContent>
+              </Dialog>
               </>
             ) : (
               <>

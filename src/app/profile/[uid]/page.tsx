@@ -38,7 +38,7 @@ const ProfileDetailPage = () => {
   // console.log(profileId)
   useEffect(() => {
     const fetchTask = async () => {
-      if (!profileId || !app) {
+      if (!profileId || !app || !user) {
         router.push("/");
         return;
       }

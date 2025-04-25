@@ -38,11 +38,19 @@ const Signup = () => {
         console.error("user not found after signup");
         setError("user not found after signup");
       }
+    } catch (err: any) {
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Email already in use');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email address');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password should be at least 6 characters');
+      } else {
+        setError(err.message);
+      }
+      return;
     }
-     catch (err: any) {
-      setError(err.message);
-    }
-      router.push('/role-select');
+    router.push('/role-select');
   };
 
   return (

@@ -13,19 +13,20 @@ const PasswordChange = ({ closeDialog }: { closeDialog: () => void }) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [wrongPw, setWrongPw] = useState(false);
+  const [weakPw, setWeakPw] = useState(false);
+  const [unmatched, setUnmatched] = useState(false);
   const auth = getAuth();
   const user = auth.currentUser;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setWrongPw(false);
+    setWeakPw(false);
+    setUnmatched(false);
     if (!user) return;
-    const status = await validatePassword(getAuth(), oldPassword);
-    if (!status.isValid) {
-      alert("Invalid password!");
-      return;
-    }
     if (newPassword !== confirmPassword) {
-      alert("Passwords do not match!");
+      setUnmatched(true);
       return;
     }
 
@@ -40,19 +41,21 @@ const PasswordChange = ({ closeDialog }: { closeDialog: () => void }) => {
       await updatePassword(user, newPassword);
 
       // 3. Success!
-      alert('Password changed!');
+      // alert('Password changed!');
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       closeDialog();
-      console.log('Password changed!');
+      // console.log('Password changed!');
     } catch (error: any) {
       // Handle Errors
       if (error.code === 'auth/invalid-credential') {
-        alert('Incorrect password.');
+        setWrongPw(true);
       } else if (error.code === 'auth/requires-recent-login') {
-        alert('Please sign in again to update your password.');
+        console.log('Please sign in again to update your password.');
         // You might want to redirect the user to the login page here
+      } else if (error.code === 'auth/weak-password') {
+        setWeakPw(true);
       } else {
         console.error('Error updating password:', error);
       }
@@ -64,7 +67,7 @@ const PasswordChange = ({ closeDialog }: { closeDialog: () => void }) => {
     <div className="flex justify-center items-center py-0 bg-secondary">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl">Make sure to choose a strong password!</CardTitle>
+          <CardTitle className="text-2xl">Please enter your current password to continue.</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-6">
           <form onSubmit={handleSubmit} className="grid gap-4">    
@@ -77,6 +80,7 @@ const PasswordChange = ({ closeDialog }: { closeDialog: () => void }) => {
                 placeholder="Old password"
                 required
               />
+              {wrongPw && (<p className="text-red-500 mt-2">Wrong Password!</p>)}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">New password</Label>
@@ -87,6 +91,7 @@ const PasswordChange = ({ closeDialog }: { closeDialog: () => void }) => {
                 placeholder="New password"
                 required
               />
+              {weakPw && (<p className="text-red-500 mt-2">Password is too weak!</p>)}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="location">Confirm password</Label>
@@ -97,6 +102,7 @@ const PasswordChange = ({ closeDialog }: { closeDialog: () => void }) => {
                 placeholder="New password"
                 required
               />
+              {unmatched && (<p className="text-red-500 mt-2">Passwords are unmatched!</p>)}
             </div>
             <Button type="submit" className="w-full">
               Change

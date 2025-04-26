@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User } from "firebase/auth";
 import { notFound } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import PasswordChange from "@/components/PasswordChange";
 interface UserAttr {
   fullName: string;
@@ -140,6 +140,9 @@ const ProfileDetails = ({ profile }: Profile) => {
                   <DialogHeader>
                     <DialogTitle>Changing the password</DialogTitle>
                   </DialogHeader>
+                  <DialogDescription>
+                    Make sure to choose a strong password!
+                  </DialogDescription>
                   <PasswordChange closeDialog={()=> setOpen(false)} />
                 </DialogContent>
               </Dialog>

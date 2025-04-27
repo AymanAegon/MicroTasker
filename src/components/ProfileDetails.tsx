@@ -2,12 +2,12 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState, Fragment } from "react";
-import { ArrowLeft, Edit, X } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
-import { doc, deleteDoc, updateDoc, Firestore } from "firebase/firestore";
+import { doc, updateDoc, Firestore } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -108,7 +108,7 @@ const ProfileDetails = ({ profile }: Profile) => {
               </div>
               <div>
                 {!isEditing && editedProfile.uid === user?.uid ? (
-                <Edit
+                <Settings
                   onClick={() => setIsEditing(true)}
                   className="mr-2 h-4 w-4 cursor-pointer"
                 />

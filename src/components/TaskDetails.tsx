@@ -3,12 +3,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/components/Auth/AuthProvider";
-import { doc, deleteDoc, updateDoc, Firestore } from "firebase/firestore";
+import { doc, deleteDoc, updateDoc, setDoc, getDoc } from "firebase/firestore";
 import { ArrowLeft } from "lucide-react"
 import { Trash2, Edit } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { addDoc, collection } from "firebase/firestore";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,23 +40,124 @@ interface Task {
   owner: Owner;
 }
 
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  userId: string;
+  budget: number;
+  category: string;
+  owner: Owner;
+}
+
+interface Request {
+  id: string;
+  message: string;
+  senderId: string;
+  reciverId: string;
+  dateSend: string;
+  dateRespond: string;
+  status: string;
+}
+
 interface TaskDetailsProps {
   task: Task;
 }
 
-const TaskDetails = ({ task }: TaskDetailsProps) => {
+const TaskDetails =  ({ task }: TaskDetailsProps) => {
   const { firestorePromises } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
   const router = useRouter();
   const currentUserId = user?.uid as string;
-  const handleAcceptTask = () => {
-    alert(`Task "${task.title}" accepted!`);
-  };
+  const [message, setMessage] = useState('');
+  const [requestExists, setRequestExists] = useState(false);
+  const [request, setRequest] = useState<Request | null>(null);
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      if (!task.id || !user?.uid || !task.userId) return;
+      const { getFirestore } = await firestorePromises;
+      const db = getFirestore();
+      const requestRef = doc(db, "requests", task.id + user?.uid + task.userId, );
+      const requestSnap = await getDoc(requestRef);
+      const taskData = requestSnap.data();
+      if (requestSnap.exists()) {
+        setRequestExists(true);
+        setRequest(taskData as Request);
+      }
+    };
+    fetchRequest();
+  }, [task.id, firestorePromises, refreshKey]);
+
+  const handleRequestTask = async () => {
+    // alert(`Task "${task.title}" accepted!`);
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    const { getFirestore } = await firestorePromises;
+    const db = getFirestore();
+    try {
+      if (!request) {
+        await setDoc(doc(db, "requests", task.id + user?.uid + task.userId), {
+          message,
+          taskId: task.id,
+          senderId: user.uid,
+          reciverId: task.userId,
+          dateSend: new Date().toString(),
+          dateRespond: "",
+          status: "pending",
+        });
+      } else {
+        await updateDoc(doc(db, "requests", task.id + user?.uid + task.userId), {
+          message,
+          dateSend: new Date().toString(),
+          status: "pending",
+        });
+      }
+      setMessage("");
+      setRefreshKey(refreshKey + 1);
+    } catch (err) {
+      console.error(err);
+    };
+  }
+
+  const handleRequestCancel = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    const { getFirestore } = await firestorePromises;
+    const db = getFirestore();
+    try {
+      if (!request) {
+        await setDoc(doc(db, "requests", task.id + user?.uid + task.userId), {
+          message,
+          taskId: task.id,
+          senderId: user.uid,
+          reciverId: task.userId,
+          dateSend: new Date().toString(),
+          dateRespond: "",
+          status: "canceled",
+        });
+      } else {
+        await updateDoc(doc(db, "requests",  task.id + user?.uid + task.userId), {
+          status: "canceled",
+        });
+      }
+      setMessage("");
+      setRefreshKey(refreshKey + 1);
+    } catch (err) {
+      console.error(err);
+    };
+  }
   
   const isTaskOwner = task.userId === currentUserId;
 
   const [isEditing, setIsEditing] = useState(false);
+  // const [isRequesting, setIsRequesting] = useState(false);
   const [editedTask, setEditedTask] = useState<Task>(task);
   
   const handleSave = async () => {
@@ -183,14 +284,47 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
               </div>
             )}
             {task.userId !== currentUserId && (
-              <Button
-                onClick={handleAcceptTask}
-                className={cn(
-                  "w-full",
-                )}
-              >
-                Accept Task
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  {!requestExists || request?.status === "canceled" ? (
+                    <Button className="w-full">
+                      Request
+                    </Button>
+                  ) : (
+                    <Button className="w-full bg-gray-200 text-gray-500 hover:bg-gray-300">
+                      Pending
+                    </Button>
+                  )}
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Request Task</DialogTitle>
+                    <DialogDescription>
+                      {!requestExists || request?.status === "canceled" ? (
+                        `Send a request with a message to do this task for ${task.owner.fullName}.`
+                      ) : (
+                        `You have sent a request to ${task.owner.fullName}. do you want to cancel the request?`
+                      )}
+                    </DialogDescription>
+                  </DialogHeader>
+                  {!requestExists || request?.status === "canceled" ? (
+                    <>
+                    <Textarea id="request-msg" name="request-msg" onChange={(e) => setMessage(e.target.value)} />
+                    <Button
+                      onClick={handleRequestTask}
+                      className="flex items-center">
+                      Request
+                    </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={handleRequestCancel}
+                      className="flex items-center bg-gray-200 text-gray-500 hover:bg-gray-300">
+                      Cancel request
+                    </Button>
+                  )}
+                </DialogContent>
+              </Dialog>
             )}
           </CardContent>
           <CardContent className="p-6 pt-2 flex justify-between gap-4">

@@ -11,24 +11,7 @@ import { Input } from "@/components/ui/input";
 import { getNearbyLocations, Location } from "@/services/location";
 import Link from 'next/link';
 import { getFirestore, collection, getDocs, doc, getDoc } from "firebase/firestore";
-
-interface User {
-  uid?: string;
-  fullName: string;
-  email: string;
-  role: string;
-}
-
-interface Task {
-  id?: string;
-  title: string;
-  description: string;
-  location: string;
-  budget: number;
-  category: string;
-  userId: string;
-  owner: User;
-}
+import { Task } from "@/app/interfaces";
 
 const TaskList = () => {
   const { firestorePromises } = useAuth();

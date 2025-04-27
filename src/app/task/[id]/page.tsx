@@ -5,24 +5,8 @@ import { useParams } from 'next/navigation';
 import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
 import { useEffect, useState } from 'react';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { User } from "firebase/auth";
-interface UserAttr {
-  fullName: string;
-  role: string;
-};
+import { Task } from "@/app/interfaces";
 
-type Owner = User & UserAttr;
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  budget: number;
-  category: string;
-  userId: string;
-  owner: Owner;
-}
 
 const TaskDetailPage = () => {
   const { id: taskId } = useParams();

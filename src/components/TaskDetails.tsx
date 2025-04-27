@@ -8,7 +8,6 @@ import { useAuth } from "@/components/Auth/AuthProvider";
 import { doc, deleteDoc, updateDoc, setDoc, getDoc } from "firebase/firestore";
 import { ArrowLeft } from "lucide-react"
 import { Trash2, Edit } from "lucide-react";
-import { addDoc, collection } from "firebase/firestore";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,45 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { User } from "firebase/auth";
-interface UserAttr {
-  fullName: string;
-  role: string;
-};
-
-type Owner = User & UserAttr;
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  userId: string;
-  budget: number;
-  category: string;
-  owner: Owner;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  userId: string;
-  budget: number;
-  category: string;
-  owner: Owner;
-}
-
-interface Request {
-  id: string;
-  message: string;
-  senderId: string;
-  reciverId: string;
-  dateSend: string;
-  dateRespond: string;
-  status: string;
-}
+import { Task, Request } from "@/app/interfaces";
 
 interface TaskDetailsProps {
   task: Task;

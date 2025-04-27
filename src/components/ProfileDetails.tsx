@@ -11,29 +11,10 @@ import { doc, updateDoc, Firestore } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User } from "firebase/auth";
 import { notFound } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import PasswordChange from "@/components/PasswordChange";
-interface UserAttr {
-  fullName: string;
-  role: string;
-};
-
-type Task = {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  budget: number;
-  category: string;
-  userId: string;
-}
-
-type ProfileType = User & UserAttr & { tasks: Task[] };
-interface Profile {
-  profile: ProfileType;
-}
+import { ProfileType, Profile } from "@/app/interfaces";
 
 const ProfileDetails = ({ profile }: Profile) => {
   const { firestorePromises, user } = useAuth();

@@ -5,27 +5,10 @@ import { notFound, useParams } from 'next/navigation';
 import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
 import { useEffect, useState } from 'react';
 import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore';
-import { User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import NotFound from '@/app/not-found';
+import { ProfileType, Task } from "@/app/interfaces";
 
-type Task = {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  budget: number;
-  category: string;
-  userId: string;
-}
-
-interface UserAttr {
-  fullName: string;
-  role: string;
-  tasks: Task[];
-};
-
-type Profile = User & UserAttr;
 
 const ProfileDetailPage = () => {
   const router = useRouter();
@@ -33,7 +16,7 @@ const ProfileDetailPage = () => {
   const { user } = useAuth();
   const { firestorePromises } = useAuth();
   const { app } = useFirebase();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<ProfileType | null>(null);
   const [profileExist, setProfileExist] = useState<boolean>(true);
   // console.log(profileId)
   useEffect(() => {
@@ -62,7 +45,7 @@ const ProfileDetailPage = () => {
       });
       // console.log(tasks);
       if (profileSnap.exists()) {
-        setProfile({ uid: profileSnap.id ?? '', ...profileSnap.data(), tasks: tasks } as Profile);
+        setProfile({ uid: profileSnap.id ?? '', ...profileSnap.data(), tasks: tasks } as ProfileType);
       }
       if (!profile) {
         setProfileExist(false);

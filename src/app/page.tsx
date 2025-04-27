@@ -9,15 +9,11 @@ import { User } from "firebase/auth";
 import { useEffect } from "react";
 import { useState } from 'react';
 import Link from 'next/link';
-
 import { Button } from "@/components/ui/button";
 import CreateTaskForm from "@/components/CreateTaskForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-interface Role {
-  role?: string;
-};
+import { ProfileType } from "@/app/interfaces";
 
-type AppUser = User & { fullName?: string } & Role;
 
 export default function Home() {
   const { user } = useAuth();
@@ -42,7 +38,7 @@ export default function Home() {
           <h1 className="text-3xl font-semibold mb-6">Nearby Tasks</h1>
           {user && (
             <span className="text-sm">
-              Hello, <Link href={`/profile/${user.uid}`} key={user.uid} className="underline text-blue-500">{(user as AppUser).fullName || user.email}
+              Hello, <Link href={`/profile/${user.uid}`} key={user.uid} className="underline text-blue-500">{(user as ProfileType).fullName || user.email}
               </Link>
             </span>
           )}
@@ -50,7 +46,7 @@ export default function Home() {
         </div>
         <Button onClick={handleLogout}>Logout</Button>
       </div>
-      {user && (user as AppUser).role === "taskPoster" ? (
+      {user && (user as ProfileType).role === "taskPoster" ? (
         <div className="my-6">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>

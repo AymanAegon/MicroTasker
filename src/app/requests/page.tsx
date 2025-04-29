@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { doc, collection, query, where, getDocs, getDoc, updateDoc } from "firebase/firestore"; // Added updateDoc
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button"; // Added Button
+import { Button } from "@/components/ui/button";
 
 import { format } from 'date-fns';
 // Updated RequestType to include receiver details if needed, though not strictly necessary for this logic
@@ -45,6 +45,7 @@ export default function RequestsPage() {
       // Use Promise.all to fetch related data concurrently
       const arrPromises = querySnapshot.docs.map(async (reqDoc) => {
         const reqData = reqDoc.data();
+        if (reqData.status === "canceled") return null; // Skip canceled requests
         // Ensure task, sender, and receiver data can be fetched before creating the object
         const taskRef = doc(db, "tasks", reqData.taskId);
         const taskSnap = await getDoc(taskRef);
@@ -77,8 +78,8 @@ export default function RequestsPage() {
   }, [app, firestorePromises, user?.uid, router, refreshKey]); // Added user?.uid, router, refreshKey
 
 
-  // Function to handle accepting or rejecting a request
-  const handleRequestUpdate = async (requestId: string, status: 'accepted' | 'rejected') => {
+  // Function to handle updating a request
+  const handleRequestUpdate = async (requestId: string, status: 'accepted' | 'rejected' | 'completed') => {
     const { getFirestore, doc, updateDoc } = await firestorePromises;
     const db = getFirestore(app);
     const requestRef = doc(db, "requests", requestId);
@@ -173,7 +174,7 @@ export default function RequestsPage() {
                     </div>
                     <div>
                       <CardDescription className="text-sm text-muted-foreground line-clamp-3">
-                        {request.task.description}
+                        {/* {request.task.description} */}
                       </CardDescription>
                     </div>
                     <div className="text-sm text-muted-foreground mt-2">
@@ -197,28 +198,37 @@ export default function RequestsPage() {
                         {request.status.charAt(0).toUpperCase() + request.status.slice(1)} {/* Capitalize status */}
                       </span>
                      </div>
+
                   </CardContent>
-                   {/* Buttons section - only show if status is pending */}
-                   {request.status === 'pending' && (
-                    <div className="flex flex-col justify-center items-center gap-2 p-4 border-t md:border-t-0 md:border-l border-border">
-                      <Button
-                        onClick={() => handleRequestUpdate(request.id, 'accepted')}
-                        variant="default"
-                        size="lg" // Increased size
-                        className="w-full md:w-auto px-6 py-3" // Adjusted padding for bigger size
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        onClick={() => handleRequestUpdate(request.id, 'rejected')}
-                        variant="destructive"
-                        size="lg" // Increased size
-                        className="w-full md:w-auto px-6 py-3" // Adjusted padding for bigger size
-                      >
-                        Reject
-                      </Button>
+                    <div className={`flex flex-col justify-center items-center gap-2 p-4 
+                      ${(request.status === 'pending' || request.status === 'accepted') && "border-t md:border-t-0 md:border-l border-border"}`}>
+                      {request.status === 'pending' && (
+                        <>
+                          <Button
+                            onClick={() => handleRequestUpdate(request.id, 'accepted')}
+                            variant="default"
+                            size="lg"
+                            className="w-full md:w-auto px-6 py-3"
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            onClick={() => handleRequestUpdate(request.id, 'rejected')}
+                            variant="destructive"
+                            size="lg"
+                            className="w-full md:w-auto px-6 py-3"
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                      {request.status === 'accepted' && (
+                        <Button onClick={() => handleRequestUpdate(request.id, 'completed')} size="lg" className="w-full md:w-auto px-6 py-3">
+                          Completed
+                        </Button>
+                      )}
                     </div>
-                  )}
+
                  </Card>
               ))}
                {filteredRequests.length === 0 && <p className="text-center text-muted-foreground mt-4">No requests found matching your criteria.</p>}

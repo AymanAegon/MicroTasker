@@ -26,6 +26,7 @@ export interface Request {
     message: string;
     senderId: string;
     reciverId: string;
+    taskId: string;
     dateSend: string;
     dateRespond: string;
     status: string;

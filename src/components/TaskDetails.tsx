@@ -18,8 +18,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+} from "@/components/ui/select";
+import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Task, Request } from "@/app/interfaces";
 
 interface TaskDetailsProps {
@@ -181,10 +182,14 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
             <CardTitle className="text-3xl font-bold">
               <div className="flex items-center gap-2">
                 <span>{task.title}</span>
-                <Link href={`/profile/${task.owner.uid}`} key={task.owner.uid} className="no-underline">
+                <Link href={`/profile/${task.owner.uid}`} key={task.owner.uid} className="flex items-center gap-2 no-underline">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                    <img src={`https://i.pravatar.cc/150?img=$47`} alt="Profile" className="object-cover w-full h-full" />
+                  </div>
                   <span>{task.owner.fullName}</span>
                 </Link>
               </div>
+              
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-2 space-y-4">

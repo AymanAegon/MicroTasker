@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge"; // Import Badge component
 
 export default function Home() {
   const { user, firestorePromises } = useAuth(); // Destructure firestorePromises from useAuth
+
   const { app } = useFirebase(); // Destructure app from useFirebase
   const router = useRouter();
   const auth = getAuth();
@@ -85,7 +86,7 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md"> {/* Avatar container */}
                     <img
                       // Use a consistent placeholder or fetch user's actual avatar
-                      src={user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`}
+                      src={(user as ProfileType).imageUrl || `https://i.pravatar.cc/150?u=${user.uid}`}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />

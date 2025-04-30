@@ -3,6 +3,8 @@ import { User } from "firebase/auth";
 export interface UserAttr {
   fullName: string;
   role: string;
+  bio: string;
+  imageUrl: string;
 };
 export type ProfileType = User & UserAttr & { tasks: Task[] };
 

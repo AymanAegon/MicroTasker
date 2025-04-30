@@ -43,45 +43,59 @@ export default function Home() {
   useEffect(() => {
     if (!user) {
       router.push('/login');
-    } else {
-      // Fetch new request count
-      const fetchNewRequestCount = async () => {
-        if (!app || !user?.uid || !firestorePromises) return; // Ensure necessary variables are available
+      return;
+    }
+    // Fetch new request count
+    const fetchNewRequestCount = async () => {
+      if (!app || !user?.uid || !firestorePromises) return; // Ensure necessary variables are available
 
-        try {
-          const { getFirestore } = await firestorePromises;
-          const db = getFirestore(app);
-          const requestsRef = collection(db, "requests");
-          // Query for requests where the receiver is the current user and status is pending
-          const q = query(requestsRef, where("reciverId", "==", user.uid), where("status", "==", "pending"));
-          const snapshot = await getCountFromServer(q);
-          setNewRequestCount(snapshot.data().count);
-        } catch (error) {
-          console.error("Error fetching new request count:", error);
-          setNewRequestCount(0); // Reset count on error
-        }
-      };
+      try {
+        const { getFirestore } = await firestorePromises;
+        const db = getFirestore(app);
+        const requestsRef = collection(db, "requests");
+        // Query for requests where the receiver is the current user and status is pending
+        const q = query(requestsRef, where("reciverId", "==", user.uid), where("status", "==", "pending"));
+        const snapshot = await getCountFromServer(q);
+        setNewRequestCount(snapshot.data().count);
+      } catch (error) {
+        console.error("Error fetching new request count:", error);
+        setNewRequestCount(0); // Reset count on error
+      }
+    };
 
-      fetchNewRequestCount();
+    fetchNewRequestCount();
+    // Set up the interval
+    const intervalId = setInterval(fetchNewRequestCount, 5000); // Fetch every 5 seconds
+
+    // Clear the interval when the component unmounts
+    return () => {
+      clearInterval(intervalId);
     }
   }, [user, router, app, firestorePromises]); // Add dependencies
 
   return (
     <main className="container mx-auto py-10 px-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold mb-6">ErrandEase</h1> {/* Updated App Name */}
+        <h1 className="text-3xl font-semibold mb-6">MicroTasker</h1> {/* Updated App Name */}
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger>
               <div className="flex items-center gap-2 cursor-pointer"> {/* Added cursor-pointer */}
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md"> {/* Slightly larger avatar */}
-                  <img
-                    // Use a consistent placeholder or fetch user's actual avatar
-                    src={user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative"> {/* Relative wrapper for absolute positioning */}
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md"> {/* Avatar container */}
+                    <img
+                      // Use a consistent placeholder or fetch user's actual avatar
+                      src={user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {newRequestCount > 0 && (
+                    <Badge variant="destructive" className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full p-0 flex items-center justify-center">
+                    </Badge>
+                  )}
                 </div>
+
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end"> {/* Align to the end */}

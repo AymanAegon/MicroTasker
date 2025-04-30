@@ -30,5 +30,4 @@ export interface Request {
     dateSend: string;
     dateRespond: string;
     status: string;
-    new: boolean;
 }

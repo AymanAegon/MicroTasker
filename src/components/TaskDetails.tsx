@@ -36,6 +36,7 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
   const [message, setMessage] = useState('');
   const [requestExists, setRequestExists] = useState(false);
   const [request, setRequest] = useState<Request | null>(null);
+  const [buttonClass, setButtonClass] = useState('');
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -48,6 +49,15 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
       if (requestSnap.exists()) {
         setRequestExists(true);
         setRequest(taskData as Request);
+        if (taskData?.status === "pending") {
+          setButtonClass("bg-gray-200 text-gray-500 hover:bg-gray-300");
+        } else if (taskData?.status === "accepted") {
+          setButtonClass("bg-green-500 text-white hover:bg-green-600");
+        } else if (taskData?.status === "canceled") {
+          setButtonClass("bg-gray-200 text-gray-500 hover:bg-gray-300");
+        } else if (taskData?.status === "rejected") {
+          setButtonClass("bg-red-500 text-white hover:bg-red-600");
+        }
       }
     };
     fetchRequest();
@@ -252,15 +262,12 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
             {task.userId !== currentUserId && (
               <Dialog>
                 <DialogTrigger asChild>
-                  {!requestExists || request?.status === "canceled" ? (
-                    <Button className="w-full">
-                      Request
-                    </Button>
-                  ) : (
-                    <Button className="w-full bg-gray-200 text-gray-500 hover:bg-gray-300">
-                      Pending
-                    </Button>
-                  )}
+                  <Button className={`w-full ${buttonClass}`}>
+                    {(requestExists && request?.status === "pending") && "Pending"}
+                    {(requestExists && request?.status === "accepted") &&  "Accepted"}
+                    {(requestExists && request?.status === "rejected") &&  "Rejected"}
+                    {(!requestExists || request?.status === "canceled") && "Request"}
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -268,8 +275,10 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
                     <DialogDescription>
                       {!requestExists || request?.status === "canceled" ? (
                         `Send a request with a message to do this task for ${task.owner.fullName}.`
-                      ) : (
+                      ) : request?.status === "pending" ? (
                         `You have sent a request to ${task.owner.fullName}. do you want to cancel the request?`
+                      ) : (
+                        `You have already sent a request to ${task.owner.fullName}.`
                       )}
                     </DialogDescription>
                   </DialogHeader>
@@ -282,7 +291,7 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
                       Request
                     </Button>
                     </>
-                  ) : (
+                  ) : request?.status === "pending" && (
                     <Button
                       onClick={handleRequestCancel}
                       className="flex items-center bg-gray-200 text-gray-500 hover:bg-gray-300">

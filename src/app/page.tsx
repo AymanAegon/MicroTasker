@@ -2,7 +2,7 @@
 "use client";
 
 import TaskList from "@/components/TaskList";
-import { useAuth } from "@/components/Auth/AuthProvider";
+import { useAuth, useFirebase } from "@/components/Auth/AuthProvider"; // Corrected import
 import { useRouter } from "next/navigation";
 import { getAuth, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -25,9 +25,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProfileType } from "@/app/interfaces";
+import { collection, query, where, getCountFromServer } from "firebase/firestore"; // Import firestore functions
+import { Badge } from "@/components/ui/badge"; // Import Badge component
 
 export default function Home() {
-  const { user } = useAuth();  const router = useRouter();  const auth = getAuth();  const [open, setOpen] = useState<boolean>(false);
+  const { user, firestorePromises } = useAuth(); // Destructure firestorePromises from useAuth
+  const { app } = useFirebase(); // Destructure app from useFirebase
+  const router = useRouter();
+  const auth = getAuth();
+  const [open, setOpen] = useState<boolean>(false);
+  const [newRequestCount, setNewRequestCount] = useState<number>(0); // State for new request count
+
   const handleLogout = async () => {
     await signOut(auth);
   };
@@ -35,38 +43,67 @@ export default function Home() {
   useEffect(() => {
     if (!user) {
       router.push('/login');
+    } else {
+      // Fetch new request count
+      const fetchNewRequestCount = async () => {
+        if (!app || !user?.uid || !firestorePromises) return; // Ensure necessary variables are available
+
+        try {
+          const { getFirestore } = await firestorePromises;
+          const db = getFirestore(app);
+          const requestsRef = collection(db, "requests");
+          // Query for requests where the receiver is the current user and status is pending
+          const q = query(requestsRef, where("reciverId", "==", user.uid), where("status", "==", "pending"));
+          const snapshot = await getCountFromServer(q);
+          setNewRequestCount(snapshot.data().count);
+        } catch (error) {
+          console.error("Error fetching new request count:", error);
+          setNewRequestCount(0); // Reset count on error
+        }
+      };
+
+      fetchNewRequestCount();
     }
-  }, [user, router]);
+  }, [user, router, app, firestorePromises]); // Add dependencies
 
   return (
     <main className="container mx-auto py-10 px-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-semibold mb-6">MicroTasker</h1>
+        <h1 className="text-3xl font-semibold mb-6">ErrandEase</h1> {/* Updated App Name */}
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <div className="flex items-center gap-2">
-                <div className="w-[40px] h-[40px] rounded-full overflow-hidden border-2 border-white shadow-md">
+              <div className="flex items-center gap-2 cursor-pointer"> {/* Added cursor-pointer */}
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md"> {/* Slightly larger avatar */}
                   <img
-                    src="https://i.pravatar.cc/150?img=60"                    
+                    // Use a consistent placeholder or fetch user's actual avatar
+                    src={user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align="end"> {/* Align to the end */}
               <DropdownMenuLabel>
                 {(user as ProfileType).fullName || user.email}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/profile/${user.uid}`}>Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href={`/requests`}>Requests</Link>
+              <DropdownMenuItem asChild>
+                 <Link href={`/requests`} className="flex justify-between items-center w-full">
+                   <span>Requests</span>
+                   {newRequestCount > 0 && (
+                     <Badge variant="destructive" className="ml-2 px-2 py-0.5 text-xs">
+                       {newRequestCount}
+                     </Badge>
+                   )}
+                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuSeparator /> {/* Added separator */}
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"> {/* Destructive style for logout */}
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>

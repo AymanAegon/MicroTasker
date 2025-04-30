@@ -5,10 +5,8 @@ import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
 
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { getNearbyLocations, Location } from "@/services/location";
 import Link from 'next/link';
 import { getFirestore, collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { Task } from "@/app/interfaces";

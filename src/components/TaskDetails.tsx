@@ -184,7 +184,7 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
                 <span>{task.title}</span>
                 <Link href={`/profile/${task.owner.uid}`} key={task.owner.uid} className="flex items-center gap-2 no-underline">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                    <img src={`https://i.pravatar.cc/150?img=$47`} alt="Profile" className="object-cover w-full h-full" />
+                    <img src={task.owner.imageUrl || `https://res.cloudinary.com/drmmom6jz/image/upload/v1746027479/Screenshot_from_2025-04-30_16-37-48_g58zzn.png`} alt="Profile" className="object-cover w-full h-full" />
                   </div>
                   <span>{task.owner.fullName}</span>
                 </Link>

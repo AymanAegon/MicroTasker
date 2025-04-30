@@ -133,7 +133,7 @@ const ProfileDetails = ({ profile }: Profile) => {
             <div className="flex gap-4 items-center">
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white shadow-md">
                 <img
-                  src={profile.imageUrl || `https://i.pravatar.cc/150?u=${profile.uid}`}
+                  src={profile.imageUrl || `https://res.cloudinary.com/drmmom6jz/image/upload/v1746027479/Screenshot_from_2025-04-30_16-37-48_g58zzn.png`}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />

@@ -1,4 +1,2 @@
-.idx/dev.nix
+
 node_modules
-.next
-src/lib/cloudinary.ts

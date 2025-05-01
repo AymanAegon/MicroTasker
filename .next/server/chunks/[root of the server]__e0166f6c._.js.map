@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
-    {"offset": {"line": 52, "column": 0}, "map": {"version":3,"sources":["file:///home/user/studio/src/app/api/user/route.ts"],"sourcesContent":["\nexport async function GET(request: Request) {\n  const { searchParams } = new URL(request.url);\n  const id = searchParams.get('id');\n//   if (!id) {\n//     return new Response('Missing id', { status: 400 });\n//   }\n  // get user from database\n  const user = { id: 1, fullName: 'John Doe' };\n  return Response.json(user);\n}\n"],"names":[],"mappings":";;;AACO,eAAe,IAAI,OAAgB;IACxC,MAAM,EAAE,YAAY,EAAE,GAAG,IAAI,IAAI,QAAQ,GAAG;IAC5C,MAAM,KAAK,aAAa,GAAG,CAAC;IAC9B,eAAe;IACf,0DAA0D;IAC1D,MAAM;IACJ,yBAAyB;IACzB,MAAM,OAAO;QAAE,IAAI;QAAG,UAAU;IAAW;IAC3C,OAAO,SAAS,IAAI,CAAC;AACvB","debugId":null}}]
-}

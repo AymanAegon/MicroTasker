@@ -1,0 +1,23 @@
+1:"$Sreact.fragment"
+2:I[4092,["992","static/chunks/bc9e92e6-341a0fcbb942c9c5.js","192","static/chunks/5650b5f8-a4ebd4bfd1eb7030.js","984","static/chunks/984-93f0c98e08a8b36a.js","149","static/chunks/149-5b6b7dfe4b068495.js","177","static/chunks/app/layout-952dd7926570b1d2.js"],"FirebaseAuthProvider"]
+3:I[4092,["992","static/chunks/bc9e92e6-341a0fcbb942c9c5.js","192","static/chunks/5650b5f8-a4ebd4bfd1eb7030.js","984","static/chunks/984-93f0c98e08a8b36a.js","149","static/chunks/149-5b6b7dfe4b068495.js","177","static/chunks/app/layout-952dd7926570b1d2.js"],"AuthProvider"]
+4:I[7555,[],""]
+5:I[1295,[],""]
+6:I[6874,["874","static/chunks/874-c28bc0b464981966.js","345","static/chunks/app/not-found-2978e20c676e6362.js"],""]
+7:I[7013,["992","static/chunks/bc9e92e6-341a0fcbb942c9c5.js","192","static/chunks/5650b5f8-a4ebd4bfd1eb7030.js","984","static/chunks/984-93f0c98e08a8b36a.js","149","static/chunks/149-5b6b7dfe4b068495.js","177","static/chunks/app/layout-952dd7926570b1d2.js"],"Toaster"]
+8:I[894,[],"ClientPageRoot"]
+9:I[3411,["992","static/chunks/bc9e92e6-341a0fcbb942c9c5.js","192","static/chunks/5650b5f8-a4ebd4bfd1eb7030.js","984","static/chunks/984-93f0c98e08a8b36a.js","874","static/chunks/874-c28bc0b464981966.js","149","static/chunks/149-5b6b7dfe4b068495.js","197","static/chunks/197-1dacb3233f0543f5.js","706","static/chunks/706-84ac7667e759814d.js","267","static/chunks/267-fea5757f5cde2195.js","188","static/chunks/188-9992615098b5b73b.js","974","static/chunks/app/page-3a468550b07b8581.js"],"default"]
+c:I[9665,[],"OutletBoundary"]
+f:I[9665,[],"ViewportBoundary"]
+11:I[9665,[],"MetadataBoundary"]
+13:I[6614,[],""]
+:HL["/_next/static/media/569ce4b8f30dc480-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/93f479601ee12b01-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/bccc345d173095bf.css","style"]
+0:{"P":null,"b":"wR1t2PeAUxSHUwwkDRvDD","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/bccc345d173095bf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"className":"__variable_5cfdac __variable_9a8899 antialiased","children":["$","$L2",null,{"children":["$","$L3",null,{"children":[["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","div",null,{"className":"flex flex-col items-center justify-center min-h-screen bg-gray-100","children":[["$","title",null,{"children":"404 Not Found"}],["$","div",null,{"className":"bg-white p-10 rounded-lg shadow-md text-center max-w-md","children":["$","div",null,{"className":"flex flex-col items-center justify-center space-y-4","children":[["$","h1",null,{"className":"text-6xl font-bold text-red-500","children":"404"}],["$","p",null,{"className":"text-2xl font-semibold text-gray-700","children":"Not Found"}],["$","p",null,{"className":"text-gray-600","children":"Oops! It looks like the page you were looking for could not be found."}],["$","$L6",null,{"href":"/","className":"bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded","children":"Go Back to Home"}]]}]}]]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L7",null,{}]]}]}]}]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","$L8",null,{"Component":"$9","searchParams":{},"params":{},"promises":["$@a","$@b"]}],"$undefined",null,["$","$Lc",null,{"children":["$Ld","$Le",null]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","Mfws3KkgSnWPmbTSeJ62I",{"children":[["$","$Lf",null,{"children":"$L10"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],["$","$L11",null,{"children":"$L12"}]]}],false]],"m":"$undefined","G":["$13","$undefined"],"s":false,"S":true}
+a:{}
+b:{}
+10:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+d:null
+e:null
+12:[["$","title","0",{"children":"MicroTasker"}],["$","meta","1",{"name":"description","content":"An app for posting tasks and getting hired"}],["$","link","2",{"rel":"icon","href":"/favicon.ico","type":"image/x-icon","sizes":"16x16"}]]

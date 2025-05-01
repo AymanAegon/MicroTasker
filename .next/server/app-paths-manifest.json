@@ -1,4 +1,12 @@
 {
+  "/api/upload/route": "app/api/upload/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/login/page": "app/login/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/profile/[uid]/page": "app/profile/[uid]/page.js",
+  "/requests/page": "app/requests/page.js",
+  "/role-select/page": "app/role-select/page.js",
+  "/signup/page": "app/signup/page.js",
+  "/task/[id]/page": "app/task/[id]/page.js"
 }

@@ -57,6 +57,8 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
           setButtonClass("bg-gray-200 text-gray-500 hover:bg-gray-300");
         } else if (taskData?.status === "rejected") {
           setButtonClass("bg-red-500 text-white hover:bg-red-600");
+        } else if (taskData?.status === "completed") {
+          setButtonClass("bg-gray-200 text-gray-500 hover:bg-gray-300");
         }
       }
     };
@@ -266,6 +268,7 @@ const TaskDetails =  ({ task }: TaskDetailsProps) => {
                     {(requestExists && request?.status === "pending") && "Pending"}
                     {(requestExists && request?.status === "accepted") &&  "Accepted"}
                     {(requestExists && request?.status === "rejected") &&  "Rejected"}
+                    {(requestExists && request?.status === "completed") &&  "Completed"}
                     {(!requestExists || request?.status === "canceled") && "Request"}
                   </Button>
                 </DialogTrigger>

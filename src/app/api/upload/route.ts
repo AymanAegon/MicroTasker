@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import cloudinary from '@/lib/cloudinary'; // Import your Cloudinary configuration
+import { NextRequest, NextResponse } from "next/server";
+import cloudinary from "@/lib/cloudinary"; // Import your Cloudinary configuration
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
-    const file = data.get('file') as File;
+    const file = data.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
     // Convert the file to a Buffer
     const bytes = await file.arrayBuffer();
@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
-          { resource_type: 'image' },
-          (error, result) => {
+          { resource_type: "image" },
+          (error: Error | undefined, result: any) => {
             if (error) {
-              console.error('Cloudinary upload error:', error);
+              console.error("Cloudinary upload error:", error);
               reject(error);
             } else {
               resolve(result);
@@ -30,9 +30,9 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    console.error('Server error:', error);
+    console.error("Server error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

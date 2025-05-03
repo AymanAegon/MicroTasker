@@ -10,9 +10,10 @@ const MapView: React.FC = () => {
   const zoom = 15;
   const API_KEY = '8gD2qhMPVyFZdLIz6SMW';
   const style = `https://api.maptiler.com/maps/streets-v2/style.json?key=${API_KEY}`;
-  const lng = -6.925144553657702;
-  const lat = 33.91463173855965;
-  const [position, setPosition] = useState({lng, lat})
+  // const lng = -6.9219939;
+  // const lat = 33.9121200;
+  const [lng, setLng] = useState(-6.9219939);
+  const [lat, setLat] = useState(33.9121200);
 
   useEffect(() => {
     if (map.current) return;
@@ -25,15 +26,32 @@ const MapView: React.FC = () => {
     });
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-    const marker = new maplibregl.Marker({color: "#FF0000"})
+    map.current.addControl(
+      new maplibregl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true
+      }).on('geolocate', (e) => {
+        setLng(e.coords.longitude);
+        setLat(e.coords.latitude);
+      })
+    );
+
+    const marker = new maplibregl.Marker({ color: "#FF0000" })
       .setLngLat([lng, lat])
       .addTo(map.current).setDraggable(true);
-      marker.on('dragend', () => {
-        setPosition(marker.getLngLat());
-        console.log(position);
-      });
+    marker.on('dragend', () => {
+      setLng(marker.getLngLat().lng);
+      setLat(marker.getLngLat().lat);
+    });
     // return () => map.current?.remove();
   }, [API_KEY, lng, lat, zoom]);
+  useEffect(() => {
+    if (!map.current) return;
+    console.log('map updated', lng, lat);
+  }, [lng, lat]);
+  // console.log(lng, lat);
 
   return <div ref={mapContainer} style={{ height: "70vh" }} ></div>;
 };

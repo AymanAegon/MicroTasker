@@ -4,16 +4,22 @@ import React, { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const MapView: React.FC = () => {
+interface MapViewProps {
+  position: {lng: number, lat: number},
+  setPosition: ({lng, lat}: {lng: number, lat: number}) => void,
+  draggable?: boolean,
+}
+const MapView: React.FC<MapViewProps> = ({position, setPosition, draggable = false}) => {
   const mapContainer = useRef<HTMLDivElement>(null);
+
   const map = useRef<maplibregl.Map | null>(null);
   const zoom = 15;
   const API_KEY = '8gD2qhMPVyFZdLIz6SMW';
   const style = `https://api.maptiler.com/maps/streets-v2/style.json?key=${API_KEY}`;
   // const lng = -6.9219939;
   // const lat = 33.9121200;
-  const [lng, setLng] = useState(-6.9219939);
-  const [lat, setLat] = useState(33.9121200);
+  const [lng, setLng] = useState(position.lng);
+  const [lat, setLat] = useState(position.lat);
 
   useEffect(() => {
     if (map.current) return;
@@ -40,7 +46,7 @@ const MapView: React.FC = () => {
 
     const marker = new maplibregl.Marker({ color: "#FF0000" })
       .setLngLat([lng, lat])
-      .addTo(map.current).setDraggable(true);
+      .addTo(map.current).setDraggable(draggable);
     marker.on('dragend', () => {
       setLng(marker.getLngLat().lng);
       setLat(marker.getLngLat().lat);
@@ -49,7 +55,7 @@ const MapView: React.FC = () => {
   }, [API_KEY, lng, lat, zoom]);
   useEffect(() => {
     if (!map.current) return;
-    console.log('map updated', lng, lat);
+    setPosition({lng, lat});
   }, [lng, lat]);
   // console.log(lng, lat);
 

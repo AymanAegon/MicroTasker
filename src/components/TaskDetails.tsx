@@ -39,7 +39,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
   const [request, setRequest] = useState<Request | null>(null);
   const [buttonClass, setButtonClass] = useState('');
   const [showMap, setShowMap] = useState(false);
-  const [position, setPosition] = useState({});
+  const [position, setPosition] = useState(task.position || { lng: 0, lat: 0 });
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -152,6 +152,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         location: taskData.location,
         budget: taskData.budget,
         category: taskData.category,
+        position: position,
         // Add other fields you want to update here
       });
 
@@ -238,7 +239,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {!showMap ? <Button onClick={() => setShowMap(true)}>Change Location</Button> : (
                       <>
                         <Button onClick={() => setShowMap(false)}>Cancel</Button>
-                        <MapView />
+                        <MapView position={position} setPosition={setPosition} draggable />
                       </>
                     )}
 
@@ -249,7 +250,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                   <>
                     <div className="text-gray-600">{task.description}</div>
                     <div className="flex flex-col gap-y-1">
-                      <span className="font-semibold">Location:</span>
+                      <span className="font-semibold">City:</span>
                       <span className="text-gray-600">{task.location}</span>
                     </div>
                     <div className="flex flex-col gap-y-1">
@@ -260,12 +261,21 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                       <span className="font-semibold">Category:</span>
                       <span className="text-gray-600">{task.category}</span>
                     </div>
+                    <div className="flex flex-col gap-y-1">
+                      <span className="font-semibold text-blue-500 cursor-pointer" onClick={() => setShowMap(true)}>Show on map</span>
+                    </div>
+                    {showMap && (
+                      <>
+                        <Button onClick={() => setShowMap(false)}>Close</Button>
+                        <MapView position={position} setPosition={setPosition} draggable={false} />
+                      </>
+                    )}
                   </>
                 )}
               </div>
               {isEditing && (
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                  <Button variant="outline" onClick={() => { setIsEditing(false); setShowMap(false) }}>
                     Cancel
                   </Button>
                   <Button onClick={handleSave}>Save</Button>
@@ -318,7 +328,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
             <CardContent className="p-6 pt-2 flex justify-between gap-4">
               {isTaskOwner && !isEditing && (
                 <Button
-                  onClick={() => setIsEditing(true)}
+                  onClick={() => { setIsEditing(true); setShowMap(false) }}
                   variant="outline"
                   className="flex items-center w-full"
                 >

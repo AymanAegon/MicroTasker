@@ -21,6 +21,10 @@ export interface Task {
     budget: number;
     category: string;
     owner: ProfileType;
+    position: {
+      lat: number;
+      lng: number;
+    };
   }
 
 export interface Request {

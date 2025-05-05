@@ -211,7 +211,7 @@ export default function Home() {
               <CreateTaskForm closeDialog={() => setOpen(false)} />
             </DialogContent>
           </Dialog>
-          <Button onClick={() => setMapOpen(!mapOpen)}>
+          <Button onClick={() => setMapOpen(!mapOpen)} style={{ marginLeft: "10px" }}>
             {mapOpen ? "List tasks" : "Find on map"}
           </Button>
         </div>

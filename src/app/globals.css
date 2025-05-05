@@ -6,6 +6,20 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+.marker {
+  display: block;
+  border: none;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
 @layer base {
   :root {

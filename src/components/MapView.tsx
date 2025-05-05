@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Task } from "@/app/interfaces";
+import { makePopup, makeCostumMarker } from "@/lib/utils";
 
 interface MapViewProps {
   position: { lng: number, lat: number },
@@ -54,11 +55,26 @@ const MapView: React.FC<MapViewProps> = ({ position, setPosition, draggable = fa
         setLat(marker.getLngLat().lat);
       });
     }
+    // Create a popup, but don't add it to the map yet.
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false
+    });
     tasks.forEach(task => {
       if (!map.current || !task.position) return;
-      const marker = new maplibregl.Marker({ color: "#006B64" })
+
+      const marker = new maplibregl.Marker({element: makeCostumMarker(task)})
         .setLngLat([task.position.lng, task.position.lat])
         .addTo(map.current);
+      marker.getElement().addEventListener('click', () => {
+        window.location.href = `/task/${task.id}`;
+      });
+      marker.getElement().addEventListener('mouseenter', () => {
+        popup.setLngLat([task.position.lng, task.position.lat]).setHTML(makePopup(task)).addTo(map.current!);
+      });
+      marker.getElement().addEventListener('mouseleave', () => {
+        popup.remove();
+      });
     })
     // return () => map.current?.remove();
   }, [API_KEY, lng, lat, zoom]);

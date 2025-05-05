@@ -3,13 +3,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { Task } from "@/app/interfaces";
 
 interface MapViewProps {
-  position: {lng: number, lat: number},
-  setPosition: ({lng, lat}: {lng: number, lat: number}) => void,
+  position: { lng: number, lat: number },
+  setPosition: ({ lng, lat }: { lng: number, lat: number }) => void,
   draggable?: boolean,
+  tasks?: Task[];
 }
-const MapView: React.FC<MapViewProps> = ({position, setPosition, draggable = false}) => {
+const MapView: React.FC<MapViewProps> = ({ position, setPosition, draggable = false, tasks = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
 
   const map = useRef<maplibregl.Map | null>(null);
@@ -43,19 +45,26 @@ const MapView: React.FC<MapViewProps> = ({position, setPosition, draggable = fal
         setLat(e.coords.latitude);
       })
     );
-
-    const marker = new maplibregl.Marker({ color: "#FF0000" })
-      .setLngLat([lng, lat])
-      .addTo(map.current).setDraggable(draggable);
-    marker.on('dragend', () => {
-      setLng(marker.getLngLat().lng);
-      setLat(marker.getLngLat().lat);
-    });
+    if (draggable) {
+      const marker = new maplibregl.Marker({ color: "#FF0000" })
+        .setLngLat([lng, lat])
+        .addTo(map.current).setDraggable(draggable);
+      marker.on('dragend', () => {
+        setLng(marker.getLngLat().lng);
+        setLat(marker.getLngLat().lat);
+      });
+    }
+    tasks.forEach(task => {
+      if (!map.current || !task.position) return;
+      const marker = new maplibregl.Marker({ color: "#006B64" })
+        .setLngLat([task.position.lng, task.position.lat])
+        .addTo(map.current);
+    })
     // return () => map.current?.remove();
   }, [API_KEY, lng, lat, zoom]);
   useEffect(() => {
     if (!map.current) return;
-    setPosition({lng, lat});
+    setPosition({ lng, lat });
   }, [lng, lat]);
   // console.log(lng, lat);
 

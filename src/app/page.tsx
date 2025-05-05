@@ -23,7 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProfileType } from "@/app/interfaces";
+import { ProfileType, Task } from "@/app/interfaces";
+import { getFirestore, getDocs, doc, getDoc } from "firebase/firestore";
 import {
   collection,
   query,
@@ -40,9 +41,13 @@ export default function Home() {
   const router = useRouter();
   const auth = getAuth();
   const [open, setOpen] = useState<boolean>(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [mapOpen, setMapOpen] = useState<boolean>(false);
   const [newRequestCount, setNewRequestCount] = useState<number>(0); // State for new request count
-  const [position, setPosition] = useState({ lng: 0, lat: 0 });
+  const [position, setPosition] = useState({
+    lng: -6.930383240172404,
+    lat: 33.91743073825462,
+  });
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -84,6 +89,39 @@ export default function Home() {
       clearInterval(intervalId);
     };
   }, [user, router, app, firestorePromises]); // Add dependencies
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const { getFirestore } = await firestorePromises;
+        let db;
+        
+        if (app) {
+          db = getFirestore(app);
+        }
+        if(db){
+          const tasksCollection = collection(db, "tasks");
+          const tasksSnapshot = await getDocs(tasksCollection);
+          const tasksPromises = tasksSnapshot.docs.map(async (docu) => {
+            const data = docu.data();
+            const taskOwnerDocRef = doc(db, "users", data.userId);
+            const taskOwnerSnapshot = await getDoc(taskOwnerDocRef);
+            return { id: docu.id, owner: taskOwnerSnapshot.data(), ...data } as Task;
+          });
+
+          const tasksData = await Promise.all(tasksPromises)
+
+          setTasks(tasksData);
+        }
+
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+
+    };
+
+    fetchTasks();
+  }, [app, firestorePromises,tasks]);
 
   return (
     <main className="container mx-auto py-10 px-4">
@@ -180,7 +218,7 @@ export default function Home() {
       ) : (
         <div className="mt-6"></div>
       )}
-      {mapOpen ? <MapView position={position} setPosition={setPosition} /> : <TaskList />}
+      {mapOpen ? <MapView position={position} setPosition={setPosition} tasks={tasks} /> : <TaskList tasks={tasks} />}
     </main>
   );
 }

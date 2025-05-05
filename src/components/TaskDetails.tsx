@@ -239,7 +239,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {!showMap ? <Button onClick={() => setShowMap(true)}>Change Location</Button> : (
                       <>
                         <Button onClick={() => setShowMap(false)}>Cancel</Button>
-                        <MapView position={position} setPosition={setPosition} draggable />
+                        <MapView position={position} setPosition={setPosition} draggable/>
                       </>
                     )}
 
@@ -267,7 +267,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {showMap && (
                       <>
                         <Button onClick={() => setShowMap(false)}>Close</Button>
-                        <MapView position={position} setPosition={setPosition} draggable={false} />
+                        <MapView position={position} setPosition={setPosition} tasks={[task]} />
                       </>
                     )}
                   </>

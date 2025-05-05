@@ -8,52 +8,17 @@ import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/c
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import Link from 'next/link';
-import { getFirestore, collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { Task } from "@/app/interfaces";
 
-const TaskList = () => {
+const TaskList:  React.FC<{tasks: Task[]} >= ({tasks}) => {
   const { firestorePromises } = useAuth();
   const {app} = useFirebase();
   const router = useRouter();
-  const [tasks, setTasks] = useState<Task[]>([]);
   // const [location, setLocation] = useState<Location>({ lat: 34.0522, lng: -118.2437 }); // Default to Los Angeles
   const [categoryFilter, setCategoryFilter] = useState('');
   // const [priceFilter, setPriceFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const { getFirestore } = await firestorePromises;
-        let db;
-        
-        if (app) {
-          db = getFirestore(app);
-        }
-        if(db){
-          const tasksCollection = collection(db, "tasks");
-          const tasksSnapshot = await getDocs(tasksCollection);
-          const tasksPromises = tasksSnapshot.docs.map(async (docu) => {
-            const data = docu.data();
-            const taskOwnerDocRef = doc(db, "users", data.userId);
-            const taskOwnerSnapshot = await getDoc(taskOwnerDocRef);
-            return { id: docu.id, owner: taskOwnerSnapshot.data(), ...data } as Task;
-          });
-
-          const tasksData = await Promise.all(tasksPromises)
-
-          setTasks(tasksData);
-        }
-
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-
-    };
-
-    fetchTasks();
-  }, [app, firestorePromises,tasks]);
 
   const filteredTasks = tasks.filter(task => {
     if (categoryFilter && categoryFilter !== 'all' && task.category !== categoryFilter) {

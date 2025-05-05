@@ -42,6 +42,7 @@ export default function Home() {
   const [open, setOpen] = useState<boolean>(false);
   const [mapOpen, setMapOpen] = useState<boolean>(false);
   const [newRequestCount, setNewRequestCount] = useState<number>(0); // State for new request count
+  const [position, setPosition] = useState({ lng: 0, lat: 0 });
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -179,7 +180,7 @@ export default function Home() {
       ) : (
         <div className="mt-6"></div>
       )}
-      {mapOpen ? <MapView /> : <TaskList />}
+      {mapOpen ? <MapView position={position} setPosition={setPosition} /> : <TaskList />}
     </main>
   );
 }

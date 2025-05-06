@@ -5,6 +5,7 @@ export interface UserAttr {
   role: string;
   bio: string;
   imageUrl: string;
+  createdAt: string;
 };
 export type ProfileType = User & UserAttr & { tasks: Task[] };
 
@@ -14,6 +15,7 @@ export interface Profile {
 
 export interface Task {
     id: string;
+    createdAt: string;
     title: string;
     description: string;
     location: string;

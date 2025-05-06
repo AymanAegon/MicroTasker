@@ -31,14 +31,15 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
     try {
       const { getFirestore } = await firestorePromises;
 
-      const db = getFirestore();    
+      const db = getFirestore();
       await addDoc(collection(db, "tasks"), {
-          title,
+        title,
         description,
         location,
         budget,
         category,
         userId: user.uid,
+        createdAt: new Date().toString(),
       });
 
       setTitle("");
@@ -60,7 +61,7 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
         </CardHeader>
         <CardContent className="grid gap-6">
           <form onSubmit={handleSubmit}
-           className="grid gap-4">             <div className="grid gap-2">
+            className="grid gap-4">             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
                 type="text"
@@ -122,7 +123,7 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
             </Button>
           </form>
           <Button variant={"outline"} onClick={closeDialog} className="w-full">
-           Cancel
+            Cancel
           </Button>
         </CardContent>
       </Card>

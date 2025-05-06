@@ -4,18 +4,19 @@
 import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
 import { Request, Task, ProfileType } from '@/app/interfaces';
 import { useEffect, useState } from 'react';
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { doc, collection, query, where, getDocs, getDoc, updateDoc } from "firebase/firestore"; // Added updateDoc
+import { doc, collection, query, where, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore"; // Added updateDoc
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger, DialogDescription, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 
 import { format } from 'date-fns';
 // Updated RequestType to include receiver details if needed, though not strictly necessary for this logic
-type RequestType = Request & {task: Task, sender: ProfileType, reciver: ProfileType};
+type RequestType = Request & { task: Task, sender: ProfileType, reciver: ProfileType };
 
 export default function RequestsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -29,7 +30,7 @@ export default function RequestsPage() {
   const [requests, setRequests] = useState<RequestType[]>([]);
 
   useEffect(() => {
-     if (!user) {
+    if (!user) {
       router.push('/login');
       return; // Early return if user is not logged in
     }
@@ -92,6 +93,18 @@ export default function RequestsPage() {
     }
   };
 
+  const handleRequestDelete = async (requestId: string) => {
+    const { getFirestore, doc } = await firestorePromises;
+    const db = getFirestore(app);
+    const requestRef = doc(db, "requests", requestId);
+    try {
+      await deleteDoc(requestRef);
+      setRefreshKey(prev => prev + 1); // Trigger a re-fetch to update the UI
+    } catch (err) {
+      console.error("Error deleting request:", err);
+    }
+  }
+
 
   const filteredRequests = requests.filter(request => {
     // Added checks for request.task existence
@@ -102,7 +115,7 @@ export default function RequestsPage() {
     if (searchTerm && !request.task.title.toLowerCase().includes(searchTerm.toLowerCase()) && !request.task.description.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
     }
-     if (locationFilter && !request.task.location.toLowerCase().includes(locationFilter.toLowerCase())) {
+    if (locationFilter && !request.task.location.toLowerCase().includes(locationFilter.toLowerCase())) {
       return false;
     }
     return true;
@@ -142,7 +155,7 @@ export default function RequestsPage() {
                 placeholder="Filter by location..."
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
-                 className="flex-grow"
+                className="flex-grow"
               />
               <Select onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full md:w-[180px]">
@@ -159,17 +172,17 @@ export default function RequestsPage() {
             </div>
             <div className="grid gap-4">
               {filteredRequests.map(request => (
-                 // Use Card instead of Link as the main container for layout flexibility
-                 <Card key={request.id} className="relative hover:shadow-md transition-shadow flex flex-col md:flex-row">
+                // Use Card instead of Link as the main container for layout flexibility
+                <Card key={request.id} className="relative hover:shadow-md transition-shadow flex flex-col md:flex-row">
                   <CardContent className="p-4 flex-grow">
                     <Link href={`/task/${request.taskId}`} className="no-underline">
                       <CardTitle className="text-lg font-medium mb-2 hover:underline text-primary">{request.task.title}</CardTitle>
                     </Link>
                     <div className="mb-2">
                       <p className="font-semibold">From:
-                         <Link href={`/profile/${request.sender.uid}`} className="ml-1 text-primary hover:underline">
-                            {request.sender.fullName}
-                          </Link>
+                        <Link href={`/profile/${request.sender.uid}`} className="ml-1 text-primary hover:underline">
+                          {request.sender.fullName}
+                        </Link>
                       </p>
                     </div>
                     <div>
@@ -178,60 +191,78 @@ export default function RequestsPage() {
                       </CardDescription>
                     </div>
                     <div className="text-sm text-muted-foreground mt-2">
-                       <p className="mb-1">Message: {request.message !== "" ? request.message : "No Message"}</p>
+                      <p className="mb-1">Message: {request.message !== "" ? request.message : "No Message"}</p>
                     </div>
-                     <div className="flex flex-col space-y-1 mt-2">
-                       <span className="font-semibold">Budget: ${request.task.budget}</span>
-                       <span className="text-xs">Requested: {format(new Date(request.dateSend), 'dd/MM/yyyy HH:mm')}</span>
-                       {request.dateRespond && <span className="text-xs">Responded: {format(new Date(request.dateRespond), 'dd/MM/yyyy HH:mm')}</span>}
-                     </div>
-                     <div className='mt-2'>
+                    <div className="flex flex-col space-y-1 mt-2">
+                      <span className="font-semibold">Budget: ${request.task.budget}</span>
+                      <span className="text-xs">Requested: {format(new Date(request.dateSend), 'dd/MM/yyyy HH:mm')}</span>
+                      {request.dateRespond && <span className="text-xs">Responded: {format(new Date(request.dateRespond), 'dd/MM/yyyy HH:mm')}</span>}
+                    </div>
+                    <div className='mt-2'>
                       <span
-                        className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          request.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                          request.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                          request.status === 'canceled' ? 'bg-gray-100 text-gray-800' : // Added Canceled status style
-                          'bg-gray-100 text-gray-800'
-                        }`}
+                        className={`text-xs px-3 py-1 rounded-full font-medium ${request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            request.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                              request.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                request.status === 'canceled' ? 'bg-gray-100 text-gray-800' : // Added Canceled status style
+                                  'bg-gray-100 text-gray-800'
+                          }`}
                       >
                         {request.status.charAt(0).toUpperCase() + request.status.slice(1)} {/* Capitalize status */}
                       </span>
-                     </div>
-
-                  </CardContent>
-                    <div className={`flex flex-col justify-center items-center gap-2 p-4 
-                      ${(request.status === 'pending' || request.status === 'accepted') && "border-t md:border-t-0 md:border-l border-border"}`}>
-                      {request.status === 'pending' && (
-                        <>
-                          <Button
-                            onClick={() => handleRequestUpdate(request.id, 'accepted')}
-                            variant="default"
-                            size="lg"
-                            className="w-full md:w-auto px-6 py-3"
-                          >
-                            Accept
-                          </Button>
-                          <Button
-                            onClick={() => handleRequestUpdate(request.id, 'rejected')}
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <span className="cursor-pointer text-xs text-red-800 hover:text-red-900 hover:underline">Delete</span>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Delete Your request</DialogTitle>
+                            <DialogDescription>
+                              This action cannot be undone. This will permanently remove the task from the database.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <Button onClick={() => { handleRequestDelete(request.id) }}
                             variant="destructive"
-                            size="lg"
-                            className="w-full md:w-auto px-6 py-3"
-                          >
-                            Reject
+                            className="flex items-center">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
                           </Button>
-                        </>
-                      )}
-                      {request.status === 'accepted' && (
-                        <Button onClick={() => handleRequestUpdate(request.id, 'completed')} size="lg" className="w-full md:w-auto px-6 py-3">
-                          Completed
-                        </Button>
-                      )}
+                        </DialogContent>
+                      </Dialog>
                     </div>
 
-                 </Card>
+                  </CardContent>
+                  <div className={`flex flex-col justify-center items-center gap-2 p-4 
+                      ${(request.status === 'pending' || request.status === 'accepted') && "border-t md:border-t-0 md:border-l border-border"}`}>
+                    {request.status === 'pending' && (
+                      <>
+                        <Button
+                          onClick={() => handleRequestUpdate(request.id, 'accepted')}
+                          variant="default"
+                          size="lg"
+                          className="w-full md:w-auto px-6 py-3"
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          onClick={() => handleRequestUpdate(request.id, 'rejected')}
+                          variant="destructive"
+                          size="lg"
+                          className="w-full md:w-auto px-6 py-3"
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                    {request.status === 'accepted' && (
+                      <Button onClick={() => handleRequestUpdate(request.id, 'completed')} size="lg" className="w-full md:w-auto px-6 py-3">
+                        Completed
+                      </Button>
+                    )}
+                  </div>
+
+                </Card>
               ))}
-               {filteredRequests.length === 0 && <p className="text-center text-muted-foreground mt-4">No requests found matching your criteria.</p>}
+              {filteredRequests.length === 0 && <p className="text-center text-muted-foreground mt-4">No requests found matching your criteria.</p>}
             </div>
           </CardContent>
         </Card>
@@ -240,4 +271,3 @@ export default function RequestsPage() {
   );
 }
 
-    

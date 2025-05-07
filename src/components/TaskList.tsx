@@ -1,19 +1,18 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useAuth, useFirebase } from '@/components/Auth/AuthProvider';
-
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import Link from 'next/link';
 import { Task } from "@/app/interfaces";
 
-const TaskList:  React.FC<{tasks: Task[]} >= ({tasks}) => {
-  const { firestorePromises } = useAuth();
-  const {app} = useFirebase();
-  const router = useRouter();
+interface TaskListProps {
+  tasks: Task[],
+  setSortOption: (sortOption: string) => void,
+}
+
+const TaskList:  React.FC<TaskListProps>= ({tasks, setSortOption}) => {
   // const [location, setLocation] = useState<Location>({ lat: 34.0522, lng: -118.2437 }); // Default to Los Angeles
   const [categoryFilter, setCategoryFilter] = useState('');
   // const [priceFilter, setPriceFilter] = useState('');
@@ -58,6 +57,16 @@ const TaskList:  React.FC<{tasks: Task[]} >= ({tasks}) => {
             <SelectItem value="cleaning">Cleaning</SelectItem>
             <SelectItem value="handyman">Handyman</SelectItem>
             <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select onValueChange={setSortOption}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort By" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="new">New</SelectItem>
+            <SelectItem value="expensive">Expensive</SelectItem>
+            <SelectItem value="cheapest">Cheapest</SelectItem>
           </SelectContent>
         </Select>
       </div>

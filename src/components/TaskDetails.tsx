@@ -139,7 +139,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
 
   const handleSave = async () => {
     try {
-      console.log("Saving task:", editedTask);
+      // console.log("Saving task:", editedTask);
       if (!editedTask.id) return;
       const { getFirestore } = await firestorePromises;
       const db = getFirestore();
@@ -155,10 +155,12 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
         position: position,
         // Add other fields you want to update here
       });
+      setEditedTask({...editedTask, position});
 
       console.log("Task updated successfully!");
-      window.location.reload()
+      // window.location.reload()
       setRefreshKey(refreshKey + 1);
+      setIsEditing(false); setShowMap(false);
     } catch (error) {
       console.log("Error updating task.");
     }
@@ -239,7 +241,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {!showMap ? <Button onClick={() => setShowMap(true)}>Change Location</Button> : (
                       <>
                         <Button onClick={() => setShowMap(false)}>Cancel</Button>
-                        <MapView position={position} setPosition={setPosition} draggable/>
+                        <MapView position={position} setPosition={setPosition} draggable />
                       </>
                     )}
 
@@ -248,18 +250,18 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                   </div>
                 ) : (
                   <>
-                    <div className="text-gray-600">{task.description}</div>
+                    <div className="text-gray-600">{editedTask.description}</div>
                     <div className="flex flex-col gap-y-1">
                       <span className="font-semibold">City:</span>
-                      <span className="text-gray-600">{task.location}</span>
+                      <span className="text-gray-600">{editedTask.location}</span>
                     </div>
                     <div className="flex flex-col gap-y-1">
                       <span className="font-semibold">Budget:</span>
-                      <span className="text-gray-600">${task.budget}</span>
+                      <span className="text-gray-600">${editedTask.budget}</span>
                     </div>
                     <div className="flex flex-col gap-y-1">
                       <span className="font-semibold">Category:</span>
-                      <span className="text-gray-600">{task.category}</span>
+                      <span className="text-gray-600">{editedTask.category}</span>
                     </div>
                     <div className="flex flex-col gap-y-1">
                       <span className="font-semibold text-blue-500 cursor-pointer" onClick={() => setShowMap(true)}>Show on map</span>
@@ -267,7 +269,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     {showMap && (
                       <>
                         <Button onClick={() => setShowMap(false)}>Close</Button>
-                        <MapView position={position} setPosition={setPosition} tasks={[task]} />
+                        <MapView position={position} setPosition={setPosition} tasks={[{ ...editedTask, position }]} />
                       </>
                     )}
                   </>
@@ -275,7 +277,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
               </div>
               {isEditing && (
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => { setIsEditing(false); setShowMap(false) }}>
+                  <Button variant="outline" onClick={() => { setIsEditing(false); setShowMap(false); setPosition(editedTask.position || { lng: 0, lat: 0 }) }}>
                     Cancel
                   </Button>
                   <Button onClick={handleSave}>Save</Button>

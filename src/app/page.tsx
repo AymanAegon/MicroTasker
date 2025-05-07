@@ -48,6 +48,7 @@ export default function Home() {
     lng: -6.930383240172404,
     lat: 33.91743073825462,
   });
+  const [sortOption, setSortOption] = useState('new');
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -95,11 +96,11 @@ export default function Home() {
       try {
         const { getFirestore } = await firestorePromises;
         let db;
-        
+
         if (app) {
           db = getFirestore(app);
         }
-        if(db){
+        if (db) {
           const tasksCollection = collection(db, "tasks");
           const tasksSnapshot = await getDocs(tasksCollection);
           const tasksPromises = tasksSnapshot.docs.map(async (docu) => {
@@ -109,11 +110,18 @@ export default function Home() {
             return { id: docu.id, owner: taskOwnerSnapshot.data(), ...data } as Task;
           });
 
-          const tasksData = await Promise.all(tasksPromises)
+          if (sortOption === 'expensive') {
+            var tasksData = (await Promise.all(tasksPromises)).sort((a, b) => b.budget - a.budget);
+          } else if (sortOption === 'cheapest') {
+            var tasksData = (await Promise.all(tasksPromises)).sort((a, b) => a.budget - b.budget)
+          } else {
+            var tasksData = (await Promise.all(tasksPromises)).sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            )
+          }
 
           setTasks(tasksData);
         }
-
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
@@ -121,7 +129,7 @@ export default function Home() {
     };
 
     fetchTasks();
-  }, [app, firestorePromises,tasks]);
+  }, [app, firestorePromises, tasks]);
 
   return (
     <main className="container mx-auto py-10 px-4">
@@ -218,7 +226,7 @@ export default function Home() {
       ) : (
         <div className="mt-6"></div>
       )}
-      {mapOpen ? <MapView position={position} setPosition={setPosition} tasks={tasks} /> : <TaskList tasks={tasks} />}
+      {mapOpen ? <MapView position={position} setPosition={setPosition} tasks={tasks} /> : <TaskList tasks={tasks} setSortOption={setSortOption} />}
     </main>
   );
 }

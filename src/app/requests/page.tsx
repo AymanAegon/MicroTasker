@@ -40,13 +40,15 @@ export default function RequestsPage() {
       // Ensure user.uid is available before querying
       if (!user.uid) return;
       const q = query(collection(db, "requests"), where("reciverId", "==", user.uid));
+      const q2 = query(collection(db, "requests"), where("senderId", "==", user.uid));
 
       const querySnapshot = await getDocs(q);
+      const querySnapshot2 = await getDocs(q2);
 
       // Use Promise.all to fetch related data concurrently
-      const arrPromises = querySnapshot.docs.map(async (reqDoc) => {
+      const arrPromises = [...querySnapshot.docs, ...querySnapshot2.docs].map(async (reqDoc) => {
         const reqData = reqDoc.data();
-        if (reqData.status === "canceled") return null; // Skip canceled requests
+        if (reqData.status === "canceled" || reqData.status === "requested") return null; // Skip canceled requests
         // Ensure task, sender, and receiver data can be fetched before creating the object
         const taskRef = doc(db, "tasks", reqData.taskId);
         const taskSnap = await getDoc(taskRef);
@@ -97,8 +99,14 @@ export default function RequestsPage() {
     const { getFirestore, doc } = await firestorePromises;
     const db = getFirestore(app);
     const requestRef = doc(db, "requests", requestId);
+    const requestSnap = await getDoc(requestRef);
+    const requestData = requestSnap.data() as Request;
     try {
-      await deleteDoc(requestRef);
+      if (user?.uid === requestData.reciverId) {
+        await updateDoc(requestRef, { status: "requested"});
+      } else {
+        await updateDoc(requestRef, { status: "canceled"});
+      }
       setRefreshKey(prev => prev + 1); // Trigger a re-fetch to update the UI
     } catch (err) {
       console.error("Error deleting request:", err);
@@ -181,7 +189,7 @@ export default function RequestsPage() {
                     <div className="mb-2">
                       <p className="font-semibold">From:
                         <Link href={`/profile/${request.sender.uid}`} className="ml-1 text-primary hover:underline">
-                          {request.sender.fullName}
+                          {request.senderId === user?.uid ? "You" : request.sender.fullName}
                         </Link>
                       </p>
                     </div>
@@ -217,7 +225,7 @@ export default function RequestsPage() {
                           <DialogHeader>
                             <DialogTitle>Delete Your request</DialogTitle>
                             <DialogDescription>
-                              This action cannot be undone. This will permanently remove the task from the database.
+                              This action cannot be undone. This will permanently remove it from the database.
                             </DialogDescription>
                           </DialogHeader>
                           <Button onClick={() => { handleRequestDelete(request.id) }}
@@ -231,6 +239,7 @@ export default function RequestsPage() {
                     </div>
 
                   </CardContent>
+                  {request.reciverId === user?.uid && (
                   <div className={`flex flex-col justify-center items-center gap-2 p-4 
                       ${(request.status === 'pending' || request.status === 'accepted') && "border-t md:border-t-0 md:border-l border-border"}`}>
                     {request.status === 'pending' && (
@@ -259,7 +268,7 @@ export default function RequestsPage() {
                       </Button>
                     )}
                   </div>
-
+                  )}
                 </Card>
               ))}
               {filteredRequests.length === 0 && <p className="text-center text-muted-foreground mt-4">No requests found matching your criteria.</p>}

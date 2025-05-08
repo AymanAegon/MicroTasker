@@ -12,7 +12,7 @@ import { ArrowLeft, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -134,6 +134,17 @@ const ProfileDetails = ({ profile }: Profile) => {
 
         const data = await response.json();
         const userDocRef = doc(db, "users", profile.uid);
+        const oldUrl = (await getDoc(userDocRef)).data()?.imageUrl;
+        
+        if (oldUrl && data.secure_url !== oldUrl) {
+          const publicId = oldUrl.split("/").pop()?.split(".")[0];
+          const response = await fetch("/api/delete-image", {
+            method: "POST",
+            body: JSON.stringify({ publicId: publicId }),
+          });
+
+        }
+
         await updateDoc(userDocRef, {
           imageUrl: data.secure_url,
         });

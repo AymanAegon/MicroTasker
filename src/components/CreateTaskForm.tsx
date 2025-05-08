@@ -16,6 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import MapView from "@/components/MapView";
 
 const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
   const [title, setTitle] = useState('');
@@ -24,6 +32,15 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
   const [budget, setBudget] = useState('');
   const [category, setCategory] = useState('');
   const { user, firestorePromises } = useAuth();
+  const [open, setOpen] = useState<boolean>(false);
+  const [position, setPosition] = useState({
+    lng: -6.930383240172404,
+    lat: 33.91743073825462,
+  });
+  const [taskPosition, setTaskPosition] = useState({
+    lng: 0,
+    lat: 0,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +57,7 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
         category,
         userId: user.uid,
         createdAt: new Date().toString(),
+        position: (taskPosition.lng !== 0 || taskPosition.lat !== 0) && taskPosition,
       });
 
       setTitle("");
@@ -118,6 +136,22 @@ const CreateTaskForm = ({ closeDialog }: { closeDialog: () => void }) => {
                 </SelectContent>
               </Select>
             </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full">
+                  Add a map location to your task
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add your task to the map</DialogTitle>
+                </DialogHeader>
+                <MapView position={position} setPosition={setPosition} draggable />
+                <Button className="w-full" onClick={() => {setTaskPosition({...position}); setOpen(false)}}>
+                  Set position
+                </Button>
+              </DialogContent>
+            </Dialog>
             <Button type="submit" className="w-full">
               Post Task
             </Button>
